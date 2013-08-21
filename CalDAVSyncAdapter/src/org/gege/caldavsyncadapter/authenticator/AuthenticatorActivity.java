@@ -159,7 +159,6 @@ public class AuthenticatorActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		getMenuInflater().inflate(R.menu.activity_authenticator, menu);
 		return true;
 	}
 
