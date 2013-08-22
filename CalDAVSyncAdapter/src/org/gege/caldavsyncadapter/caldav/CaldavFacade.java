@@ -146,8 +146,10 @@ public class CaldavFacade {
 		return client;
 	}
 
-	public CaldavFacade(String mUser, String mPassword, String mURL) throws MalformedURLException {
+	public CaldavFacade(String mUser, String mPassword, String mURL, String mTrustAll) throws MalformedURLException {
 		url = new URL(mURL);
+		
+		trustAll = mTrustAll.equals("true");
 
 		httpClient = getHttpClient();
 		UsernamePasswordCredentials upc = new UsernamePasswordCredentials(mUser, mPassword);

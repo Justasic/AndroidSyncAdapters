@@ -21,19 +21,6 @@
 
 package org.gege.caldavsyncadapter.authenticator;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.http.conn.HttpHostConnectException;
-import org.gege.caldavsyncadapter.R;
-import org.gege.caldavsyncadapter.caldav.CaldavFacade;
-import org.gege.caldavsyncadapter.caldav.CaldavFacade.TestConnectionResult;
-import org.xml.sax.SAXException;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.animation.Animator;
@@ -55,6 +42,20 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.http.conn.HttpHostConnectException;
+import org.gege.caldavsyncadapter.Constants;
+import org.gege.caldavsyncadapter.R;
+import org.gege.caldavsyncadapter.caldav.CaldavFacade;
+import org.gege.caldavsyncadapter.caldav.CaldavFacade.TestConnectionResult;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+
+import javax.xml.parsers.ParserConfigurationException;
+
 /**
  * Activity which displays a login screen to the user, offering registration as
  * well.
@@ -68,7 +69,7 @@ public class AuthenticatorActivity extends Activity {
 	public static final String USER_DATA_URL_KEY = "USER_DATA_URL_KEY";
 	public static final String USER_DATA_USERNAME = "USER_DATA_USERNAME";
 	public static final String USER_DATA_VERSION = "USER_DATA_VERSION";
-	public static final String CURRENT_USER_DATA_VERSION = "1";
+    public static final String CURRENT_USER_DATA_VERSION = "1";
 	
 	public static final String ACCOUNT_NAME_SPLITTER = "@";
 	
@@ -85,6 +86,7 @@ public class AuthenticatorActivity extends Activity {
 	// Values for email and password at the time of the login attempt.
 	private String mUser;
 	private String mPassword;
+	private String mTrustAll;
 	private Context mContext;
 
 	// UI references.
@@ -181,7 +183,7 @@ public class AuthenticatorActivity extends Activity {
 		mPassword = mPasswordView.getText().toString();
 		mURL = mURLView.getText().toString();
 		mAccountname = mAccountnameView.getText().toString();
-
+		mTrustAll = "false";
 		boolean cancel = false;
 		View focusView = null;
 		
@@ -300,7 +302,7 @@ public class AuthenticatorActivity extends Activity {
 			TestConnectionResult result = null;
 			
 			try {
-				CaldavFacade facade = new CaldavFacade(mUser, mPassword, mURL);
+				CaldavFacade facade = new CaldavFacade(mUser, mPassword, mURL, mTrustAll);
 				String version = "";
 				try {
 					version = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0).versionName;
@@ -365,6 +367,7 @@ public class AuthenticatorActivity extends Activity {
 						mAccountManager.setUserData(account, USER_DATA_URL_KEY, mURL);
 						mAccountManager.setUserData(account, USER_DATA_USERNAME, mUser);
 						mAccountManager.setUserData(account, USER_DATA_VERSION, CURRENT_USER_DATA_VERSION);
+						mAccountManager.setUserData(account, Constants.USER_DATA_TRUST_ALL_KEY, mTrustAll);
 					} else {
 						Log.v(TAG,"no new account created");
 						Result = LoginResult.Account_Already_In_Use;
