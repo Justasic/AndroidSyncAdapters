@@ -24,6 +24,7 @@
     <string name="error_account_already_in_use" >Account bereits in Verwendung</string>
     <string name="success_calendar">Verbindung erfolgreich (Kalender)</string>
     <string name="success_collection">Verbindung erfolgreich (mehrere Kalender)</string>
-    
+    <string name="trustall">Überprüfe SSL Zertifikat</string>
+
 
 </resources>
