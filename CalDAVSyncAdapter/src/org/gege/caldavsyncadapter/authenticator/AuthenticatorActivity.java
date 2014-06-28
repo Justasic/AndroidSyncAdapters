@@ -150,7 +150,7 @@ public class AuthenticatorActivity extends Activity {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 				String url = ((EditText) findViewById(R.id.url)).getText().toString();
-				int visible = url.toLowerCase(Locale.getDefault()).startsWith("https") ? View.VISIBLE : View.INVISIBLE;
+				int visible = url.toLowerCase(Locale.getDefault()).startsWith("https") ? View.VISIBLE : View.GONE;
 				((CheckBox) findViewById(R.id.trustall)).setVisibility(visible);
 			}
 			

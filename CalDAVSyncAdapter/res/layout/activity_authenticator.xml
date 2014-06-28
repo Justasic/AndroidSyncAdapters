@@ -78,7 +78,7 @@
     		    android:layout_height="wrap_content"
     		    android:checked="true"
     		    android:text="@string/trustall"
-    		    android:visibility="invisible" />
+    		    android:visibility="gone" />
 
             <EditText
                 android:id="@+id/accountname"
