@@ -25,6 +25,8 @@
     <string name="success_calendar">Verbindung erfolgreich (Kalender)</string>
     <string name="success_collection">Verbindung erfolgreich (mehrere Kalender)</string>
     <string name="trustall">Überprüfe SSL Zertifikat</string>
+    <string name="error_ssl">SSL error</string>
+    <string name="error_untrusted_certificate">Untrusted certificate</string>
 
 
 </resources>
