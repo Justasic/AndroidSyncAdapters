@@ -63,6 +63,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
+import javax.net.ssl.SSLException;
 import javax.xml.parsers.ParserConfigurationException;
 
 //import java.net.MalformedURLException;
@@ -82,7 +83,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 	
 /*	private static final String[] CALENDAR_PROJECTION = new String[] {
-	    Calendars._ID,                           // 0
+        Calendars._ID,                           // 0
 	    Calendars.ACCOUNT_NAME,                  // 1
 	    Calendars.CALENDAR_DISPLAY_NAME,         // 2
 	    Calendars.OWNER_ACCOUNT,                 // 3
@@ -257,6 +258,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             Log.e(TAG, "AuthenticatorException", e);*/
         /*} catch (final OperationCanceledException e) {
             Log.e(TAG, "OperationCanceledExcetpion", e);*/
+        } catch (SSLException e) {
+            Log.e(TAG, "SSLException", e);
+            syncResult.stats.numIoExceptions++;
+            if (!e.getMessage().startsWith("Read") || !e.getMessage().startsWith("Write")) {
+                NotificationsHelper.signalSyncErrors(this.getContext(), "Caldav sync error (SSL)", e.getMessage());
+            }
         } catch (final IOException e) {
             Log.e(TAG, "IOException", e);
             syncResult.stats.numIoExceptions++;
