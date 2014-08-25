@@ -3,29 +3,23 @@
  *
  * This file is part of Andoid Caldav Sync Adapter Free.
  *
- * Andoid Caldav Sync Adapter Free is free software: you can redistribute 
- * it and/or modify it under the terms of the GNU General Public License 
- * as published by the Free Software Foundation, either version 3 of the 
+ * Andoid Caldav Sync Adapter Free is free software: you can redistribute
+ * it and/or modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation, either version 3 of the
  * License, or at your option any later version.
  *
- * Andoid Caldav Sync Adapter Free is distributed in the hope that 
- * it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+ * Andoid Caldav Sync Adapter Free is distributed in the hope that
+ * it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Andoid Caldav Sync Adapter Free.  
+ * along with Andoid Caldav Sync Adapter Free.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-package org.gege.caldavsyncadapter.android.entities;
 
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.CalendarContract.Attendees;
-import android.provider.CalendarContract.Events;
-import android.provider.CalendarContract.Reminders;
+package org.gege.caldavsyncadapter.android.entities;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
@@ -68,6 +62,12 @@ import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Version;
 
 import org.gege.caldavsyncadapter.caldav.entities.CalendarEvent;
+
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.CalendarContract.Attendees;
+import android.provider.CalendarContract.Events;
+import android.provider.CalendarContract.Reminders;
 
 import java.net.URISyntaxException;
 import java.text.ParseException;
@@ -119,10 +119,11 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
     }
 
     public String getETag() {
-        String Result = "";
-        if (this.ContentValues.containsKey(ETAG))
-            Result = this.ContentValues.getAsString(ETAG);
-        return Result;
+        String result = "";
+        if (this.ContentValues.containsKey(ETAG)) {
+            result = this.ContentValues.getAsString(ETAG);
+        }
+        return result;
     }
 
     public void setETag(String eTag) {
@@ -156,18 +157,24 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
     public boolean readContentValues(Cursor cur) {
         this.setETag(cur.getString(cur.getColumnIndex(ETAG)));
 
-        this.ContentValues.put(Events.EVENT_TIMEZONE, cur.getString(cur.getColumnIndex(Events.EVENT_TIMEZONE)));
-        this.ContentValues.put(Events.EVENT_END_TIMEZONE, cur.getString(cur.getColumnIndex(Events.EVENT_END_TIMEZONE)));
+        this.ContentValues.put(Events.EVENT_TIMEZONE,
+                cur.getString(cur.getColumnIndex(Events.EVENT_TIMEZONE)));
+        this.ContentValues.put(Events.EVENT_END_TIMEZONE,
+                cur.getString(cur.getColumnIndex(Events.EVENT_END_TIMEZONE)));
         this.ContentValues.put(Events.DTSTART, cur.getLong(cur.getColumnIndex(Events.DTSTART)));
         this.ContentValues.put(Events.DTEND, cur.getLong(cur.getColumnIndex(Events.DTEND)));
         this.ContentValues.put(Events.ALL_DAY, cur.getLong(cur.getColumnIndex(Events.ALL_DAY)));
         this.ContentValues.put(Events.TITLE, cur.getString(cur.getColumnIndex(Events.TITLE)));
-        this.ContentValues.put(Events.CALENDAR_ID, cur.getString(cur.getColumnIndex(Events.CALENDAR_ID)));
+        this.ContentValues
+                .put(Events.CALENDAR_ID, cur.getString(cur.getColumnIndex(Events.CALENDAR_ID)));
         this.ContentValues.put(Events._SYNC_ID, cur.getString(cur.getColumnIndex(Events._SYNC_ID)));
         //this.ContentValues.put(Events.SYNC_DATA1, cur.getString(cur.getColumnIndex(Events.SYNC_DATA1))); //not needed here, eTag has already been read
-        this.ContentValues.put(Events.DESCRIPTION, cur.getString(cur.getColumnIndex(Events.DESCRIPTION)));
-        this.ContentValues.put(Events.EVENT_LOCATION, cur.getString(cur.getColumnIndex(Events.EVENT_LOCATION)));
-        this.ContentValues.put(Events.ACCESS_LEVEL, cur.getInt(cur.getColumnIndex(Events.ACCESS_LEVEL)));
+        this.ContentValues
+                .put(Events.DESCRIPTION, cur.getString(cur.getColumnIndex(Events.DESCRIPTION)));
+        this.ContentValues.put(Events.EVENT_LOCATION,
+                cur.getString(cur.getColumnIndex(Events.EVENT_LOCATION)));
+        this.ContentValues
+                .put(Events.ACCESS_LEVEL, cur.getInt(cur.getColumnIndex(Events.ACCESS_LEVEL)));
 
         this.ContentValues.put(Events.STATUS, cur.getInt(cur.getColumnIndex(Events.STATUS)));
 
@@ -197,36 +204,35 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
         Organizer organizer = null;
         ParameterList paraList = null;
 
-        String Name = "";
+        String name = "";
         Cn cn = null;
 
-        String Email = "";
+        String email = "";
 
-        int Relationship = 0;
+        int relationship = 0;
 
-
-        int Status = 0;
+        int status = 0;
         PartStat partstat = null;
 
-        int Type = 0;
+        int type = 0;
         Role role = null;
 
         try {
             while (cur.moveToNext()) {
-                Name = cur.getString(cur.getColumnIndex(Attendees.ATTENDEE_NAME));
-                Email = cur.getString(cur.getColumnIndex(Attendees.ATTENDEE_EMAIL));
-                Relationship = cur.getInt(cur.getColumnIndex(Attendees.ATTENDEE_RELATIONSHIP));
-                Type = cur.getInt(cur.getColumnIndex(Attendees.ATTENDEE_TYPE));
-                Status = cur.getInt(cur.getColumnIndex(Attendees.ATTENDEE_STATUS));
+                name = cur.getString(cur.getColumnIndex(Attendees.ATTENDEE_NAME));
+                email = cur.getString(cur.getColumnIndex(Attendees.ATTENDEE_EMAIL));
+                relationship = cur.getInt(cur.getColumnIndex(Attendees.ATTENDEE_RELATIONSHIP));
+                type = cur.getInt(cur.getColumnIndex(Attendees.ATTENDEE_TYPE));
+                status = cur.getInt(cur.getColumnIndex(Attendees.ATTENDEE_STATUS));
 
-                if (Relationship == Attendees.RELATIONSHIP_ORGANIZER) {
+                if (relationship == Attendees.RELATIONSHIP_ORGANIZER) {
                     organizer = new Organizer();
-                    organizer.setValue("mailto:" + Email);
+                    organizer.setValue("mailto:" + email);
                     paraList = organizer.getParameters();
                     mAttendees.add(organizer);
                 } else {
                     attendee = new Attendee();
-                    attendee.setValue("mailto:" + Email);
+                    attendee.setValue("mailto:" + email);
                     paraList = attendee.getParameters();
                     mAttendees.add(attendee);
                 }
@@ -234,31 +240,34 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
                 Rsvp rsvp = new Rsvp(true);
                 paraList.add(rsvp);
 
-                cn = new Cn(Name);
+                cn = new Cn(name);
                 paraList.add(cn);
 
-                if (Status == Attendees.ATTENDEE_STATUS_INVITED)
+                if (status == Attendees.ATTENDEE_STATUS_INVITED) {
                     partstat = new PartStat(PartStat.NEEDS_ACTION.getValue());
-                else if (Status == Attendees.ATTENDEE_STATUS_ACCEPTED)
+                } else if (status == Attendees.ATTENDEE_STATUS_ACCEPTED) {
                     partstat = new PartStat(PartStat.ACCEPTED.getValue());
-                else if (Status == Attendees.ATTENDEE_STATUS_DECLINED)
+                } else if (status == Attendees.ATTENDEE_STATUS_DECLINED) {
                     partstat = new PartStat(PartStat.DECLINED.getValue());
-                else if (Status == Attendees.ATTENDEE_STATUS_NONE)
+                } else if (status == Attendees.ATTENDEE_STATUS_NONE) {
                     partstat = new PartStat(PartStat.COMPLETED.getValue());
-                else if (Status == Attendees.ATTENDEE_STATUS_TENTATIVE)
+                } else if (status == Attendees.ATTENDEE_STATUS_TENTATIVE) {
                     partstat = new PartStat(PartStat.TENTATIVE.getValue());
-                else
+                } else {
                     partstat = new PartStat(PartStat.NEEDS_ACTION.getValue());
+                }
                 paraList.add(partstat);
 
-                if (Type == Attendees.TYPE_OPTIONAL)
+                if (type == Attendees.TYPE_OPTIONAL) {
                     role = new Role(Role.OPT_PARTICIPANT.getValue());
-                else if (Type == Attendees.TYPE_NONE)
-                    role = new Role(Role.NON_PARTICIPANT.getValue()); //regular participants in android are non required?
-                else if (Type == Attendees.TYPE_REQUIRED)
+                } else if (type == Attendees.TYPE_NONE) {
+                    role = new Role(Role.NON_PARTICIPANT
+                            .getValue()); //regular participants in android are non required?
+                } else if (type == Attendees.TYPE_REQUIRED) {
                     role = new Role(Role.REQ_PARTICIPANT.getValue());
-                else
+                } else {
                     role = new Role(Role.NON_PARTICIPANT.getValue());
+                }
                 paraList.add(role);
             }
 
@@ -275,16 +284,15 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
      * @return success of this function
      */
     public boolean readReminder(Cursor cur) {
-        int Method;
-        int Minutes;
+        int method;
+        int minutes;
         VAlarm reminder;
         while (cur.moveToNext()) {
             reminder = new VAlarm();
-            Method = cur.getInt(cur.getColumnIndex(Reminders.METHOD));
-            Minutes = cur.getInt(cur.getColumnIndex(Reminders.MINUTES)) * -1;
+            method = cur.getInt(cur.getColumnIndex(Reminders.METHOD));
+            minutes = cur.getInt(cur.getColumnIndex(Reminders.MINUTES)) * -1;
 
-
-            Dur dur = new Dur(0, 0, Minutes, 0);
+            Dur dur = new Dur(0, 0, minutes, 0);
             Trigger tri = new Trigger(dur);
             Value val = new Value(Duration.DURATION);
             tri.getParameters().add(val);
@@ -294,11 +302,11 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
             desc.setValue("caldavsyncadapter standard description");
             reminder.getProperties().add(desc);
 
-
-            if (Method == Reminders.METHOD_EMAIL)
+            if (method == Reminders.METHOD_EMAIL) {
                 reminder.getProperties().add(Action.EMAIL);
-            else
+            } else {
                 reminder.getProperties().add(Action.DISPLAY);
+            }
 
             this.mReminders.add(reminder);
         }
@@ -315,12 +323,12 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
      * @see CalendarEvent#fetchBody()
      */
     public boolean createIcs(String strUid) {
-        boolean Result = false;
+        boolean result = false;
         TimeZone timeZone = null;
         TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
 //TODO: do not simply create the ics-file new. take into account the RAWDATA if available
-		/* 
-		 * dtstart=1365598800000
+                /*
+                 * dtstart=1365598800000
 		 * dtend=1365602400000
 		 * eventTimezone=Europe/Berlin
 		 * eventEndTimezone=null
@@ -400,8 +408,9 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
             // DTEND
             long lngEnd = this.ContentValues.getAsLong(Events.DTEND);
             String strTZEnd = this.ContentValues.getAsString(Events.EVENT_END_TIMEZONE);
-            if (strTZEnd == null)
+            if (strTZEnd == null) {
                 strTZEnd = strTZStart;
+            }
             if (lngEnd > 0) {
                 DtEnd dtEnd = new DtEnd();
                 if (allDay) {
@@ -412,8 +421,9 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
                     DateTime datetimeEnd = new DateTime();
                     datetimeEnd.setTime(lngEnd);
                     dtEnd.setDate(datetimeEnd);
-                    if (strTZEnd != null)
+                    if (strTZEnd != null) {
                         timeZone = registry.getTimeZone(strTZEnd);
+                    }
                     dtEnd.setTimeZone(timeZone);
                 }
                 propEvent.add(dtEnd);
@@ -513,14 +523,15 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
             if (this.ContentValues.containsKey(Events.ACCESS_LEVEL)) {
                 int accessLevel = this.ContentValues.getAsInteger(Events.ACCESS_LEVEL);
                 Clazz clazz = new Clazz();
-                if (accessLevel == Events.ACCESS_PUBLIC)
+                if (accessLevel == Events.ACCESS_PUBLIC) {
                     clazz.setValue(Clazz.PUBLIC.getValue());
-                else if (accessLevel == Events.ACCESS_PRIVATE)
+                } else if (accessLevel == Events.ACCESS_PRIVATE) {
                     clazz.setValue(Clazz.PRIVATE.getValue());
-                else if (accessLevel == Events.ACCESS_CONFIDENTIAL)
+                } else if (accessLevel == Events.ACCESS_CONFIDENTIAL) {
                     clazz.setValue(Clazz.CONFIDENTIAL.getValue());
-                else
+                } else {
                     clazz.setValue(Clazz.PUBLIC.getValue());
+                }
 
                 propEvent.add(clazz);
             }
@@ -530,12 +541,13 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
                 int intStatus = this.ContentValues.getAsInteger(Events.STATUS);
                 if (intStatus > -1) {
                     Status status = new Status();
-                    if (intStatus == Events.STATUS_CANCELED)
+                    if (intStatus == Events.STATUS_CANCELED) {
                         status.setValue(Status.VEVENT_CANCELLED.getValue());
-                    else if (intStatus == Events.STATUS_CONFIRMED)
+                    } else if (intStatus == Events.STATUS_CONFIRMED) {
                         status.setValue(Status.VEVENT_CONFIRMED.getValue());
-                    else if (intStatus == Events.STATUS_TENTATIVE)
+                    } else if (intStatus == Events.STATUS_TENTATIVE) {
                         status.setValue(Status.VEVENT_TENTATIVE.getValue());
+                    }
 
                     propEvent.add(status);
                 }
@@ -565,27 +577,29 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
             e.printStackTrace();
         }
 
-        return Result;
+        return result;
     }
 
     /**
      * marks the android event as already handled
-     * @return
+     *
      * @see AndroidEvent#cInternalTag
-     * @see SyncAdapter#synchroniseEvents(CaldavFacade, Account, ContentProviderClient, Uri, DavCalendar, SyncStats)
-     * @throws RemoteException
+     * @see SyncAdapter#synchroniseEvents(CaldavFacade, Account, ContentProviderClient, Uri,
+     * DavCalendar, SyncStats)
      */
-/*	public boolean tagAndroidEvent() throws RemoteException {
-		
-		ContentValues values = new ContentValues();
-		values.put(Event.INTERNALTAG, 1);
-		
-		int RowCount = this.mProvider.update(asSyncAdapter(this.getUri(), this.mAccount.name, this.mAccount.type), values, null, null);
-		//Log.e(TAG,"Rows updated: " + RowCount.toString());
-		
-		return (RowCount == 1);
-	}*/ 
-	
+//    public boolean tagAndroidEvent() throws RemoteException {
+//
+//        ContentValues values = new ContentValues();
+//        values.put(Event.INTERNALTAG, 1);
+//
+//        int RowCount = this.mProvider
+//                .update(asSyncAdapter(this.getUri(), this.mAccount.name, this.mAccount.type),
+//                        values, null, null);
+//        //Log.e(TAG,"Rows updated: " + RowCount.toString());
+//
+//        return (RowCount == 1);
+//    }
+
 /*	private static Uri asSyncAdapter(Uri uri, String account, String accountType) {
 	    return uri.buildUpon()
 	        .appendQueryParameter(android.provider.CalendarContract.CALLER_IS_SYNCADAPTER,"true")

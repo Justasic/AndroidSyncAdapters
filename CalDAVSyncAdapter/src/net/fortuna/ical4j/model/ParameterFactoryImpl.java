@@ -31,8 +31,6 @@
  */
 package net.fortuna.ical4j.model;
 
-import java.net.URISyntaxException;
-
 import net.fortuna.ical4j.model.parameter.Abbrev;
 import net.fortuna.ical4j.model.parameter.AltRep;
 import net.fortuna.ical4j.model.parameter.Cn;
@@ -61,9 +59,11 @@ import net.fortuna.ical4j.model.parameter.Vvenue;
 import net.fortuna.ical4j.model.parameter.XParameter;
 import net.fortuna.ical4j.util.Strings;
 
+import java.net.URISyntaxException;
+
 /**
  * A factory for creating iCalendar parameters.
- * 
+ *
  * $Id $
  *
  * [05-Apr-2004]
@@ -73,7 +73,7 @@ import net.fortuna.ical4j.util.Strings;
 public class ParameterFactoryImpl extends AbstractContentFactory implements ParameterFactory {
 
     private static final long serialVersionUID = -4034423507432249165L;
-    
+
     private static ParameterFactoryImpl instance = new ParameterFactoryImpl();
 
     protected ParameterFactoryImpl() {
@@ -113,11 +113,13 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
 
     /**
      * Creates a parameter.
-     * @param name name of the parameter
+     *
+     * @param name  name of the parameter
      * @param value a parameter value
      * @return a component
-     * @throws URISyntaxException thrown when the specified string is not a valid representation of a URI for selected
-     * parameters
+     * @throws URISyntaxException thrown when the specified string is not a valid representation of
+     *                            a URI for selected
+     *                            parameters
      */
     public Parameter createParameter(final String name, final String value)
             throws URISyntaxException {
@@ -125,14 +127,11 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
         Parameter parameter = null;
         if (factory != null) {
             parameter = factory.createParameter(name, value);
-        }
-        else if (isExperimentalName(name)) {
+        } else if (isExperimentalName(name)) {
             parameter = new XParameter(name, value);
-        }
-        else if (allowIllegalNames()) {
+        } else if (allowIllegalNames()) {
             parameter = new XParameter(name, value);
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Invalid parameter name: "
                     + name);
         }
@@ -147,24 +146,29 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
         return name.startsWith(Parameter.EXPERIMENTAL_PREFIX)
                 && name.length() > Parameter.EXPERIMENTAL_PREFIX.length();
     }
-    
+
     private static class AbbrevFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
-        public Parameter createParameter(final String name, final String value) throws URISyntaxException {
+        public Parameter createParameter(final String name, final String value)
+                throws URISyntaxException {
             return new Abbrev(value);
         }
     }
-    
+
     private static class AltRepFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
-        public Parameter createParameter(final String name, final String value) throws URISyntaxException {
+        public Parameter createParameter(final String name, final String value)
+                throws URISyntaxException {
             return new AltRep(value);
         }
     }
-    
+
     private static class CnFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -172,32 +176,31 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             return new Cn(value);
         }
     }
-    
+
     private static class CuTypeFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
-        public Parameter createParameter(final String name, final String value) throws URISyntaxException {
+        public Parameter createParameter(final String name, final String value)
+                throws URISyntaxException {
             CuType parameter = new CuType(value);
             if (CuType.INDIVIDUAL.equals(parameter)) {
                 parameter = CuType.INDIVIDUAL;
-            }
-            else if (CuType.GROUP.equals(parameter)) {
+            } else if (CuType.GROUP.equals(parameter)) {
                 parameter = CuType.GROUP;
-            }
-            else if (CuType.RESOURCE.equals(parameter)) {
+            } else if (CuType.RESOURCE.equals(parameter)) {
                 parameter = CuType.RESOURCE;
-            }
-            else if (CuType.ROOM.equals(parameter)) {
+            } else if (CuType.ROOM.equals(parameter)) {
                 parameter = CuType.ROOM;
-            }
-            else if (CuType.UNKNOWN.equals(parameter)) {
+            } else if (CuType.UNKNOWN.equals(parameter)) {
                 parameter = CuType.UNKNOWN;
             }
             return parameter;
         }
     }
-    
+
     private static class DelegatedFromFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -205,8 +208,9 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             return new DelegatedFrom(value);
         }
     }
-    
+
     private static class DelegatedToFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -214,8 +218,9 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             return new DelegatedTo(value);
         }
     }
-    
+
     private static class DirFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -223,8 +228,9 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             return new Dir(value);
         }
     }
-    
+
     private static class EncodingFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -232,15 +238,15 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             Encoding parameter = new Encoding(value);
             if (Encoding.EIGHT_BIT.equals(parameter)) {
                 parameter = Encoding.EIGHT_BIT;
-            }
-            else if (Encoding.BASE64.equals(parameter)) {
+            } else if (Encoding.BASE64.equals(parameter)) {
                 parameter = Encoding.BASE64;
             }
             return parameter;
         }
     }
-    
+
     private static class FmtTypeFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -248,8 +254,9 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             return new FmtType(value);
         }
     }
-    
+
     private static class FbTypeFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -257,21 +264,19 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             FbType parameter = new FbType(value);
             if (FbType.FREE.equals(parameter)) {
                 parameter = FbType.FREE;
-            }
-            else if (FbType.BUSY.equals(parameter)) {
+            } else if (FbType.BUSY.equals(parameter)) {
                 parameter = FbType.BUSY;
-            }
-            else if (FbType.BUSY_TENTATIVE.equals(parameter)) {
+            } else if (FbType.BUSY_TENTATIVE.equals(parameter)) {
                 parameter = FbType.BUSY_TENTATIVE;
-            }
-            else if (FbType.BUSY_UNAVAILABLE.equals(parameter)) {
+            } else if (FbType.BUSY_UNAVAILABLE.equals(parameter)) {
                 parameter = FbType.BUSY_UNAVAILABLE;
             }
             return parameter;
         }
     }
-    
+
     private static class LanguageFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -279,8 +284,9 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             return new Language(value);
         }
     }
-    
+
     private static class MemberFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -288,8 +294,9 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             return new Member(value);
         }
     }
-    
+
     private static class PartStatFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -297,30 +304,25 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             PartStat parameter = new PartStat(value);
             if (PartStat.NEEDS_ACTION.equals(parameter)) {
                 parameter = PartStat.NEEDS_ACTION;
-            }
-            else if (PartStat.ACCEPTED.equals(parameter)) {
+            } else if (PartStat.ACCEPTED.equals(parameter)) {
                 parameter = PartStat.ACCEPTED;
-            }
-            else if (PartStat.DECLINED.equals(parameter)) {
+            } else if (PartStat.DECLINED.equals(parameter)) {
                 parameter = PartStat.DECLINED;
-            }
-            else if (PartStat.TENTATIVE.equals(parameter)) {
+            } else if (PartStat.TENTATIVE.equals(parameter)) {
                 parameter = PartStat.TENTATIVE;
-            }
-            else if (PartStat.DELEGATED.equals(parameter)) {
+            } else if (PartStat.DELEGATED.equals(parameter)) {
                 parameter = PartStat.DELEGATED;
-            }
-            else if (PartStat.COMPLETED.equals(parameter)) {
+            } else if (PartStat.COMPLETED.equals(parameter)) {
                 parameter = PartStat.COMPLETED;
-            }
-            else if (PartStat.IN_PROCESS.equals(parameter)) {
+            } else if (PartStat.IN_PROCESS.equals(parameter)) {
                 parameter = PartStat.IN_PROCESS;
             }
             return parameter;
         }
     }
-    
+
     private static class RangeFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -328,15 +330,15 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             Range parameter = new Range(value);
             if (Range.THISANDFUTURE.equals(parameter)) {
                 parameter = Range.THISANDFUTURE;
-            }
-            else if (Range.THISANDPRIOR.equals(parameter)) {
+            } else if (Range.THISANDPRIOR.equals(parameter)) {
                 parameter = Range.THISANDPRIOR;
             }
             return parameter;
         }
     }
-    
+
     private static class RelatedFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -344,15 +346,15 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             Related parameter = new Related(value);
             if (Related.START.equals(parameter)) {
                 parameter = Related.START;
-            }
-            else if (Related.END.equals(parameter)) {
+            } else if (Related.END.equals(parameter)) {
                 parameter = Related.END;
             }
             return parameter;
         }
     }
-    
+
     private static class RelTypeFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -360,8 +362,7 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             RelType parameter = new RelType(value);
             if (RelType.PARENT.equals(parameter)) {
                 parameter = RelType.PARENT;
-            }
-            else if (RelType.CHILD.equals(parameter)) {
+            } else if (RelType.CHILD.equals(parameter)) {
                 parameter = RelType.CHILD;
             }
             if (RelType.SIBLING.equals(parameter)) {
@@ -370,8 +371,9 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             return parameter;
         }
     }
-    
+
     private static class RoleFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -379,21 +381,19 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             Role parameter = new Role(value);
             if (Role.CHAIR.equals(parameter)) {
                 parameter = Role.CHAIR;
-            }
-            else if (Role.REQ_PARTICIPANT.equals(parameter)) {
+            } else if (Role.REQ_PARTICIPANT.equals(parameter)) {
                 parameter = Role.REQ_PARTICIPANT;
-            }
-            else if (Role.OPT_PARTICIPANT.equals(parameter)) {
+            } else if (Role.OPT_PARTICIPANT.equals(parameter)) {
                 parameter = Role.OPT_PARTICIPANT;
-            }
-            else if (Role.NON_PARTICIPANT.equals(parameter)) {
+            } else if (Role.NON_PARTICIPANT.equals(parameter)) {
                 parameter = Role.NON_PARTICIPANT;
             }
             return parameter;
         }
     }
-    
+
     private static class RsvpFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -401,8 +401,7 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             Rsvp parameter = new Rsvp(value);
             if (Rsvp.TRUE.equals(parameter)) {
                 parameter = Rsvp.TRUE;
-            }
-            else if (Rsvp.FALSE.equals(parameter)) {
+            } else if (Rsvp.FALSE.equals(parameter)) {
                 parameter = Rsvp.FALSE;
             }
             return parameter;
@@ -410,16 +409,15 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
     }
 
     private static class ScheduleAgentFactory implements ParameterFactory {
+
         public Parameter createParameter(final String name,
                 final String value) throws URISyntaxException {
             final ScheduleAgent parameter = new ScheduleAgent(value);
             if (ScheduleAgent.SERVER.equals(parameter)) {
                 return ScheduleAgent.SERVER;
-            }
-            else if (ScheduleAgent.CLIENT.equals(parameter)) {
+            } else if (ScheduleAgent.CLIENT.equals(parameter)) {
                 return ScheduleAgent.CLIENT;
-            }
-            else if (ScheduleAgent.NONE.equals(parameter)) {
+            } else if (ScheduleAgent.NONE.equals(parameter)) {
                 return ScheduleAgent.NONE;
             }
             return parameter;
@@ -427,13 +425,15 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
     }
 
     private static class ScheduleStatusFactory implements ParameterFactory {
-        public Parameter createParameter(final String name, 
-        		final String value) throws URISyntaxException {
+
+        public Parameter createParameter(final String name,
+                final String value) throws URISyntaxException {
             return new ScheduleStatus(value);
         }
     }
-    
+
     private static class SentByFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -441,8 +441,9 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             return new SentBy(value);
         }
     }
-    
+
     private static class VvenueFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name, final String value)
@@ -450,8 +451,9 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             return new Vvenue(value);
         }
     }
-    
+
     private static class TypeFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -459,8 +461,9 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             return new Type(value);
         }
     }
-    
+
     private static class TzIdFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -468,8 +471,9 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             return new TzId(Strings.unescape(value));
         }
     }
-    
+
     private static class ValueFactory implements ParameterFactory {
+
         private static final long serialVersionUID = 1L;
 
         public Parameter createParameter(final String name,
@@ -477,48 +481,35 @@ public class ParameterFactoryImpl extends AbstractContentFactory implements Para
             Value parameter = new Value(value);
             if (Value.BINARY.equals(parameter)) {
                 parameter = Value.BINARY;
-            }
-            else if (Value.BOOLEAN.equals(parameter)) {
+            } else if (Value.BOOLEAN.equals(parameter)) {
                 parameter = Value.BOOLEAN;
-            }
-            else if (Value.CAL_ADDRESS.equals(parameter)) {
+            } else if (Value.CAL_ADDRESS.equals(parameter)) {
                 parameter = Value.CAL_ADDRESS;
-            }
-            else if (Value.DATE.equals(parameter)) {
+            } else if (Value.DATE.equals(parameter)) {
                 parameter = Value.DATE;
-            }
-            else if (Value.DATE_TIME.equals(parameter)) {
+            } else if (Value.DATE_TIME.equals(parameter)) {
                 parameter = Value.DATE_TIME;
-            }
-            else if (Value.DURATION.equals(parameter)) {
+            } else if (Value.DURATION.equals(parameter)) {
                 parameter = Value.DURATION;
-            }
-            else if (Value.FLOAT.equals(parameter)) {
+            } else if (Value.FLOAT.equals(parameter)) {
                 parameter = Value.FLOAT;
-            }
-            else if (Value.INTEGER.equals(parameter)) {
+            } else if (Value.INTEGER.equals(parameter)) {
                 parameter = Value.INTEGER;
-            }
-            else if (Value.PERIOD.equals(parameter)) {
+            } else if (Value.PERIOD.equals(parameter)) {
                 parameter = Value.PERIOD;
-            }
-            else if (Value.RECUR.equals(parameter)) {
+            } else if (Value.RECUR.equals(parameter)) {
                 parameter = Value.RECUR;
-            }
-            else if (Value.TEXT.equals(parameter)) {
+            } else if (Value.TEXT.equals(parameter)) {
                 parameter = Value.TEXT;
-            }
-            else if (Value.TIME.equals(parameter)) {
+            } else if (Value.TIME.equals(parameter)) {
                 parameter = Value.TIME;
-            }
-            else if (Value.URI.equals(parameter)) {
+            } else if (Value.URI.equals(parameter)) {
                 parameter = Value.URI;
-            }
-            else if (Value.UTC_OFFSET.equals(parameter)) {
+            } else if (Value.UTC_OFFSET.equals(parameter)) {
                 parameter = Value.UTC_OFFSET;
             }
             return parameter;
         }
     }
-    
+
 }

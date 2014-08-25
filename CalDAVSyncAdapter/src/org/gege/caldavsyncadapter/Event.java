@@ -33,7 +33,7 @@ abstract public class Event {
 	/**
 	 * stores the ETAG of an event
 	 */
-	public static String ETAG = Events.SYNC_DATA1;
+	public final static String ETAG = Events.SYNC_DATA1;
 
 	/**
 	 * internal Tag used to identify deleted events 

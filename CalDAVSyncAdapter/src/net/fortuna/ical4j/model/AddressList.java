@@ -31,6 +31,10 @@
  */
 package net.fortuna.ical4j.model;
 
+import net.fortuna.ical4j.util.CompatibilityHints;
+import net.fortuna.ical4j.util.Strings;
+import net.fortuna.ical4j.util.Uris;
+
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,15 +42,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import net.fortuna.ical4j.util.CompatibilityHints;
-import net.fortuna.ical4j.util.Strings;
-import net.fortuna.ical4j.util.Uris;
 import edu.emory.mathcs.backport.java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * $Id$ [23-Apr-2004]
  *
  * Defines a list of iCalendar addresses.
+ *
  * @author Ben Fortuna
  */
 public class AddressList implements Serializable {
@@ -64,6 +66,7 @@ public class AddressList implements Serializable {
 
     /**
      * Parses the specified string representation to create a list of addresses.
+     *
      * @param aValue a string representation of a list of addresses
      * @throws URISyntaxException where the specified string is not a valid representation
      */
@@ -75,8 +78,7 @@ public class AddressList implements Serializable {
             try {
                 addresses.add(new URI(Uris.encode(Strings
                         .unquote(t.nextToken()))));
-            }
-            catch (URISyntaxException use) {
+            } catch (URISyntaxException use) {
                 // ignore invalid addresses if relaxed parsing is enabled..
                 if (!CompatibilityHints.isHintEnabled(
                         CompatibilityHints.KEY_RELAXED_PARSING)) {
@@ -92,7 +94,7 @@ public class AddressList implements Serializable {
      */
     public final String toString() {
         final StringBuffer b = new StringBuffer();
-        for (final Iterator i = addresses.iterator(); i.hasNext();) {
+        for (final Iterator i = addresses.iterator(); i.hasNext(); ) {
             b.append(Strings.quote(Uris.decode(Strings.valueOf(i.next()))));
             if (i.hasNext()) {
                 b.append(',');
@@ -103,6 +105,7 @@ public class AddressList implements Serializable {
 
     /**
      * Add an address to the list.
+     *
      * @param address the address to add
      * @return true
      * @see List#add(java.lang.Object)
@@ -129,6 +132,7 @@ public class AddressList implements Serializable {
 
     /**
      * Remove an address from the list.
+     *
      * @param address the address to remove
      * @return true if the list contained the specified address
      * @see List#remove(java.lang.Object)

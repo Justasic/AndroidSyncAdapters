@@ -13,17 +13,23 @@
 # Add any project specific keep options here:
 -verbose
 
--dontobfuscate
+-optimizations !class/unboxing/enum
+#-dontobfuscate
 
 -assumenosideeffects class android.util.Log {
     public static *** d(...);
     public static *** v(...);
 }
 
+-dontwarn android.support.v4.**
+
+#-keep class android.support.v4.** { *; }
+
 -libraryjars libs/backport-util-concurrent-3.1.jar
 -libraryjars libs/commons-codec-1.5.jar
 -libraryjars libs/commons-lang-2.6.jar
 -libraryjars libs/commons-logging-1.1.1.jar
+-libraryjars libs/android-support-v4.jar
 
 
 -dontwarn org.apache.**

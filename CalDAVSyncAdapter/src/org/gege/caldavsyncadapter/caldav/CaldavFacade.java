@@ -21,11 +21,6 @@
 
 package org.gege.caldavsyncadapter.caldav;
 
-import android.accounts.Account;
-import android.content.ContentProviderClient;
-import android.content.Context;
-import android.util.Log;
-
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -43,7 +38,6 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.conn.params.ConnManagerPNames;
 import org.apache.http.conn.params.ConnPerRouteBean;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -81,6 +75,11 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
+import android.accounts.Account;
+import android.content.ContentProviderClient;
+import android.content.Context;
+import android.util.Log;
+
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -102,16 +101,22 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 public class CaldavFacade {
+
     private static final String TAG = "CaldavFacade";
 
     private final static String XML_VERSION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 
-    private String USER_AGENT = "CalDAV Sync Adapter (Android) https://github.com/gggard/AndroidCaldavSyncAdapater";
+    private String USER_AGENT
+            = "CalDAV Sync Adapter (Android) https://github.com/gggard/AndroidCaldavSyncAdapater";
+
     private String VERSION = "";
 
     private static HttpClient httpClient;
+
     private HttpContext mContext = null;
+
     private AuthState mLastAuthState = null;
+
     private AuthScope mLastAuthScope = null;
 
     private boolean mTrustAll = true;
@@ -121,13 +126,17 @@ public class CaldavFacade {
     private static HttpHost targetHost;
 
     private int lastStatusCode;
+
     private String lastETag;
+
     private String lastDav;
 
     private String mstrcHeaderIfMatch = "If-Match";
+
     private String mstrcHeaderIfNoneMatch = "If-None-Match";
 
     private Account mAccount = null;
+
     private ContentProviderClient mProvider;
 
     protected HttpClient getHttpClient() {
@@ -140,14 +149,18 @@ public class CaldavFacade {
 
         SchemeRegistry registry = new SchemeRegistry();
         registry.register(new Scheme("http", new PlainSocketFactory(), 80));
-        registry.register(new Scheme("https", (mTrustAll ? EasySSLSocketFactory.getSocketFactory() : SSLSocketFactory
-                .getSocketFactory()), 443));
-        DefaultHttpClient client = new DefaultHttpClient(new ThreadSafeClientConnManager(params, registry), params);
+        registry.register(new Scheme("https",
+                (mTrustAll ? EasySSLSocketFactory.getSocketFactory() : SSLSocketFactory
+                        .getSocketFactory()), 443
+        ));
+        DefaultHttpClient client = new DefaultHttpClient(
+                new ThreadSafeClientConnManager(params, registry), params);
 
         return client;
     }
 
-    public CaldavFacade(String mUser, String mPassword, String mURL, String trustAll) throws MalformedURLException {
+    public CaldavFacade(String mUser, String mPassword, String mURL, String trustAll)
+            throws MalformedURLException {
         url = new URL(mURL);
 
         this.mTrustAll = Boolean.valueOf(trustAll);
@@ -160,7 +173,8 @@ public class CaldavFacade {
         ((AbstractHttpClient) httpClient).getCredentialsProvider().setCredentials(as, upc);
 
         mContext = new BasicHttpContext();
-        CredentialsProvider credProvider = ((AbstractHttpClient) httpClient).getCredentialsProvider();
+        CredentialsProvider credProvider = ((AbstractHttpClient) httpClient)
+                .getCredentialsProvider();
         mContext.setAttribute(ClientContext.CREDS_PROVIDER, credProvider);
 
         //http://dlinsin.blogspot.de/2009/08/http-basic-authentication-with-android.html
@@ -171,18 +185,20 @@ public class CaldavFacade {
 
         if (url.getProtocol().equalsIgnoreCase("https")) {
             proto = "https";
-            if (url.getPort() == -1)
+            if (url.getPort() == -1) {
                 port = 443;
-            else
+            } else {
                 port = url.getPort();
+            }
         }
 
         if (url.getProtocol().equalsIgnoreCase("http")) {
             proto = "http";
-            if (url.getPort() == -1)
+            if (url.getPort() == -1) {
                 port = 80;
-            else
+            } else {
                 port = url.getPort();
+            }
         }
         targetHost = new HttpHost(url.getHost(), port, proto);
     }
@@ -190,14 +206,17 @@ public class CaldavFacade {
     //http://dlinsin.blogspot.de/2009/08/http-basic-authentication-with-android.html
     HttpRequestInterceptor preemptiveAuth = new HttpRequestInterceptor() {
         @Override
-        public void process(final HttpRequest request, final HttpContext context) throws HttpException, IOException {
+        public void process(final HttpRequest request, final HttpContext context)
+                throws HttpException, IOException {
             AuthState authState = (AuthState) context.getAttribute(ClientContext.TARGET_AUTH_STATE);
 
             if (authState.getAuthScheme() == null) {
                 if (mLastAuthState != null) {
-                    Log.d(TAG, "LastAuthState: restored with user " + mLastAuthState.getCredentials()
-                            .getUserPrincipal()
-                            .getName());
+                    Log.d(TAG,
+                            "LastAuthState: restored with user " + mLastAuthState.getCredentials()
+                                    .getUserPrincipal()
+                                    .getName()
+                    );
                     authState.setAuthScheme(mLastAuthState.getAuthScheme());
                     authState.setCredentials(mLastAuthState.getCredentials());
                 } else {
@@ -239,13 +258,9 @@ public class CaldavFacade {
      * handle the exceptions
      *
      * @return {@link TestConnectionResult}
-     * @throws HttpHostConnectException
-     * @throws IOException
-     * @throws URISyntaxException
-     * @throws ParserConfigurationException
-     * @throws SAXException
      */
-    public TestConnectionResult testConnection() throws IOException, URISyntaxException, ParserConfigurationException, SAXException {
+    public TestConnectionResult testConnection()
+            throws IOException, URISyntaxException, ParserConfigurationException, SAXException {
         Log.d(TAG, "start testConnection ");
         try {
             List<DavCalendar> calendars = new ArrayList<DavCalendar>();
@@ -281,38 +296,39 @@ public class CaldavFacade {
 
     /**
      * @param context May be null if no notification is needed
-     * @param uri
-     * @return
-     * @throws AuthenticationException
-     * @throws FileNotFoundException
      */
-    private List<DavCalendar> forceGetCalendarsFromUri(Context context, URI uri) throws AuthenticationException, FileNotFoundException {
+    private List<DavCalendar> forceGetCalendarsFromUri(Context context, URI uri)
+            throws AuthenticationException, FileNotFoundException {
         List<DavCalendar> calendars = new ArrayList<DavCalendar>();
         Exception exception = null;
         try {
             calendars = getCalendarsFromSet(uri);
         } catch (ClientProtocolException e) {
             if (context != null) {
-                NotificationsHelper.signalSyncErrors(context, "Caldav sync problem", e.getMessage());
+                NotificationsHelper
+                        .signalSyncErrors(context, "Caldav sync problem", e.getMessage());
                 //NotificationsHelper.getCurrentSyncLog().addException(e);
             }
             exception = e;
         } catch (FileNotFoundException e) {
             if (context != null) {
-                NotificationsHelper.signalSyncErrors(context, "Caldav sync problem", e.getMessage());
+                NotificationsHelper
+                        .signalSyncErrors(context, "Caldav sync problem", e.getMessage());
                 //NotificationsHelper.getCurrentSyncLog().addException(e);
             }
             throw e;
         } catch (IOException e) {
             if (context != null) {
-                NotificationsHelper.signalSyncErrors(context, "Caldav sync problem", e.getMessage());
+                NotificationsHelper
+                        .signalSyncErrors(context, "Caldav sync problem", e.getMessage());
                 //NotificationsHelper.getCurrentSyncLog().addException(e);
             }
             exception = e;
         } catch (CaldavProtocolException e) {
 
             if (context != null) {
-                NotificationsHelper.signalSyncErrors(context, "Caldav sync problem", e.getMessage());
+                NotificationsHelper
+                        .signalSyncErrors(context, "Caldav sync problem", e.getMessage());
                 //NotificationsHelper.getCurrentSyncLog().addException(e);
             }
             exception = e;
@@ -325,13 +341,13 @@ public class CaldavFacade {
         return calendars;
     }
 
-    private final static String PROPFIND_USER_PRINCIPAL = XML_VERSION +
-            "<d:propfind xmlns:d=\"DAV:\">" +
-            "<d:prop>" +
-            "<d:current-user-principal />" +
-            "<d:principal-URL />" +
-            "</d:prop>" +
-            "</d:propfind>";
+    private final static String PROPFIND_USER_PRINCIPAL = XML_VERSION
+            + "<d:propfind xmlns:d=\"DAV:\">"
+            + "<d:prop>"
+            + "<d:current-user-principal />"
+            + "<d:principal-URL />"
+            + "</d:prop>"
+            + "</d:propfind>";
 
     private URI getUserPrincipal() throws
             AuthenticationException,
@@ -430,7 +446,6 @@ public class CaldavFacade {
      * <li>PROPFIND displayname, resourcetype, getctag on CalendarHomeSets
      * </ol>
      *
-     * @param context
      * @return List of {@link DavCalendar}
      * @throws ClientProtocolException http protocol error
      * @throws IOException             Connection lost
@@ -442,8 +457,10 @@ public class CaldavFacade {
             IOException, URISyntaxException, ParserConfigurationException,
             CaldavProtocolException {
         try {
-            CalendarList Result = new CalendarList(this.mAccount, this.mProvider, CalendarSource.CalDAV, this.url
-                    .toString());
+            CalendarList Result = new CalendarList(this.mAccount, this.mProvider,
+                    CalendarSource.CalDAV, this.url
+                    .toString()
+            );
             List<DavCalendar> calendars = new ArrayList<DavCalendar>();
 
             calendars = forceGetCalendarsFromUri(context, this.url.toURI());
@@ -517,8 +534,9 @@ public class CaldavFacade {
 
             Node node = items.item(i);
 
-            if (node.getTextContent().trim().length() == 0)
+            if (node.getTextContent().trim().length() == 0) {
                 continue; // not an event
+            }
 
             calendarEvent.setETag(node.getTextContent().trim());
             //calendarEvent.calendarURL = this.url;
@@ -580,14 +598,16 @@ public class CaldavFacade {
             ClientProtocolException {
         final int statusCode = response.getStatusLine().getStatusCode();
         lastStatusCode = statusCode;
-        if (response.containsHeader("ETag"))
+        if (response.containsHeader("ETag")) {
             lastETag = response.getFirstHeader("ETag").getValue();
-        else
+        } else {
             lastETag = "";
-        if (response.containsHeader("DAV"))
+        }
+        if (response.containsHeader("DAV")) {
             lastDav = response.getFirstHeader("DAV").getValue();
-        else
+        } else {
             lastDav = "";
+        }
 
         switch (statusCode) {
             case 401:
@@ -611,7 +631,8 @@ public class CaldavFacade {
 
         request.setURI(uri);
         //request.setHeader("Host", targetHost.getHostName());
-        request.setHeader("Host", targetHost.getHostName() + ":" + String.valueOf(targetHost.getPort()));
+        request.setHeader("Host",
+                targetHost.getHostName() + ":" + String.valueOf(targetHost.getPort()));
         request.setHeader("Depth", Integer.toString(depth));
         request.setHeader("Content-Type", "application/xml;charset=\"UTF-8\"");
         try {
@@ -626,7 +647,8 @@ public class CaldavFacade {
         HttpDelete request = new HttpDelete();
         request.setURI(uri);
         //request.setHeader("Host", targetHost.getHostName());
-        request.setHeader("Host", targetHost.getHostName() + ":" + String.valueOf(targetHost.getPort()));
+        request.setHeader("Host",
+                targetHost.getHostName() + ":" + String.valueOf(targetHost.getPort()));
         request.setHeader("Content-Type", "application/xml;charset=\"UTF-8\"");
         return request;
     }
@@ -635,7 +657,8 @@ public class CaldavFacade {
         HttpPut request = new HttpPut();
         request.setURI(uri);
         //request.setHeader("Host", targetHost.getHostName());
-        request.setHeader("Host", targetHost.getHostName() + ":" + String.valueOf(targetHost.getPort()));
+        request.setHeader("Host",
+                targetHost.getHostName() + ":" + String.valueOf(targetHost.getPort()));
         //request.setHeader("Content-Type", "application/xml;charset=\"UTF-8\"");
         request.setHeader("Content-Type", "text/calendar; charset=UTF-8");
         try {
@@ -651,7 +674,8 @@ public class CaldavFacade {
         HttpReport request = new HttpReport();
         request.setURI(uri);
         //request.setHeader("Host", targetHost.getHostName());
-        request.setHeader("Host", targetHost.getHostName() + ":" + String.valueOf(targetHost.getPort()));
+        request.setHeader("Host",
+                targetHost.getHostName() + ":" + String.valueOf(targetHost.getPort()));
         request.setHeader("Depth", Integer.toString(depth));
         request.setHeader("Content-Type", "application/xml;charset=\"UTF-8\"");
         //request.setHeader("Content-Type", "text/xml;charset=\"UTF-8\"");
@@ -681,7 +705,8 @@ public class CaldavFacade {
                 + " body= " + body);
     }
 
-    public static boolean getEvent(CalendarEvent calendarEvent) throws ClientProtocolException, IOException {
+    public static boolean getEvent(CalendarEvent calendarEvent)
+            throws ClientProtocolException, IOException {
         boolean Result = false;
         HttpReport request = null;
 
@@ -707,8 +732,9 @@ public class CaldavFacade {
         HttpResponse response = httpClient.execute(targetHost, request);
         String body = EntityUtils.toString(response.getEntity(), "UTF-8");
 
-        if (calendarEvent.setICSasMultiStatus(body))
+        if (calendarEvent.setICSasMultiStatus(body)) {
             Result = true;
+        }
 
         return Result;
     }
@@ -719,8 +745,9 @@ public class CaldavFacade {
      *
      * @param uri  the full URI of the event on server side. example: http://caldav.example.com/principal/user/calendar/e6be67c6-eff0-44f8-a1a0-6c2cb1029944-caldavsyncadapter.ics
      * @param data the full ical-data for the event
-     * @param ETag the ETAG of this event is send within the "If-Match" Parameter to tell the server only to update this version
-     * @return
+     * @param ETag the ETAG of this event is send within the "If-Match" Parameter to tell the
+     *             server
+     *             only to update this version
      */
     public boolean updateEvent(URI uri, String data, String ETag) {
         boolean Result = false;
@@ -784,8 +811,10 @@ public class CaldavFacade {
     /**
      * sends a delete event request to the server
      *
-     * @param calendarEventUri the full URI of the event on server side. example: http://caldav.example.com/principal/user/calendar/e6be67c6-eff0-44f8-a1a0-6c2cb1029944-caldavsyncadapter.ics
-     * @param ETag             the ETAG of this event is send within the "If-Match" Parameter to tell the server only to delete this version
+     * @param calendarEventUri the full URI of the event on server side. example:
+     *                         http://caldav.example.com/principal/user/calendar/e6be67c6-eff0-44f8-a1a0-6c2cb1029944-caldavsyncadapter.ics
+     * @param ETag             the ETAG of this event is send within the "If-Match" Parameter to
+     *                         tell the server only to delete this version
      * @return success of this function
      */
     public boolean deleteEvent(URI calendarEventUri, String ETag) {
@@ -838,7 +867,8 @@ public class CaldavFacade {
     public void setVersion(String version) {
         VERSION = version;
         ((AbstractHttpClient) httpClient).getParams()
-                .setParameter(CoreProtocolPNames.USER_AGENT, this.USER_AGENT + " Version:" + VERSION);
+                .setParameter(CoreProtocolPNames.USER_AGENT,
+                        this.USER_AGENT + " Version:" + VERSION);
     }
 
     public void setAccount(Account account) {
