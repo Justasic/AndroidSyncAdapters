@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string translatable="false" name="app_name">ACalDAV</string>
+    <string translatable="false" name="label">ACalDAV</string>
+    <string name="menu_settings">Settings</string>
+    <string translatable="false" name="title_activity_sync_status_report">ACalDAV Sync Status</string>
+
+</resources>

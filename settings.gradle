@@ -1,1 +1,1 @@
-include ':CalDAVSyncAdapter'
+include ':ACalDAV'

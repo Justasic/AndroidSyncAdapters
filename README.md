@@ -33,4 +33,3 @@ Choose Import Project, choose CalDAVSyncAdapter Folder.
 Select "Create project from existing sources". Next...
 
 If you get an error about unregistered Git Root, select Add Git root.
-
