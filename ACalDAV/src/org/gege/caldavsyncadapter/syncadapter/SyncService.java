@@ -25,6 +25,8 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
+import de.jdevel.acaldav.App;
+
 public class SyncService extends Service {
 
     private static final Object sSyncAdapterLock = new Object();
@@ -37,6 +39,7 @@ public class SyncService extends Service {
             if (sSyncAdapter == null) {
                 sSyncAdapter = new SyncAdapter(getApplicationContext(), true);
             }
+            App.setContext(getApplicationContext());
         }
     }
 

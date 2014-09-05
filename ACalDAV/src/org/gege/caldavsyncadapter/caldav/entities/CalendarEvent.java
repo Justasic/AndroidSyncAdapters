@@ -85,6 +85,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import de.jdevel.acaldav.App;
+
 
 public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
 
@@ -274,18 +276,18 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
      */
     public boolean fetchBody()
             throws ClientProtocolException, IOException, CaldavProtocolException, ParserException {
-        boolean Error = false;
+        boolean error = false;
 
         //replaced fetchEvent() with getEvent()
         //CaldavFacade.fetchEvent(this);
         CaldavFacade.getEvent(this);
 
-        boolean Parse = this.parseIcs();
-        if (!Parse) {
-            Error = true;
+        boolean parsed = this.parseIcs();
+        if (!parsed) {
+            error = true;
         }
 
-        return !Error;
+        return !error;
     }
 
     public java.util.ArrayList<ContentValues> getReminders() {
@@ -831,12 +833,12 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
      * opens the first items of the event
      *
      * @return success of this function
-     * @see AndroidEvent#createIcs()
+     * @see AndroidEvent#createIcs(String)
      * @see CalendarEvent#fetchBody()
      */
     private boolean parseIcs() throws CaldavProtocolException, IOException, ParserException {
         boolean Error = false;
-
+        Thread.currentThread().setContextClassLoader(App.getContext().getClassLoader());
         CalendarBuilder builder = new CalendarBuilder();
         CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_UNFOLDING, true);
         CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_PARSING, true);
