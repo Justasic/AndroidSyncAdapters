@@ -31,14 +31,14 @@ public class AuthenticationService extends Service {
 
     private static final String TAG = "AuthenticationService";
 
-    private Authenticator mAuthenticator;
+    private AuthenticatorStub mAuthenticator;
 
     @Override
     public void onCreate() {
         if (Log.isLoggable(TAG, Log.VERBOSE)) {
             Log.v(TAG, "SampleSyncAdapter Authentication Service started.");
         }
-        mAuthenticator = new Authenticator(this);
+        mAuthenticator = new AuthenticatorStub(this);
     }
 
     @Override

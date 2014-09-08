@@ -32,15 +32,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-public class Authenticator extends AbstractAccountAuthenticator {
+public class AuthenticatorStub extends AbstractAccountAuthenticator {
 
     private static final String TAG = "Authenticator";
 
     private Context mContext;
 
-    public Authenticator(Context context) {
+    public AuthenticatorStub(Context context) {
         super(context);
-
         mContext = context;
     }
 
@@ -63,14 +62,12 @@ public class Authenticator extends AbstractAccountAuthenticator {
     @Override
     public Bundle confirmCredentials(AccountAuthenticatorResponse response,
             Account account, Bundle options) throws NetworkErrorException {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public Bundle editProperties(AccountAuthenticatorResponse response,
             String accountType) {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -78,20 +75,17 @@ public class Authenticator extends AbstractAccountAuthenticator {
     public Bundle getAuthToken(AccountAuthenticatorResponse response,
             Account account, String authTokenType, Bundle options)
             throws NetworkErrorException {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public String getAuthTokenLabel(String authTokenType) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public Bundle hasFeatures(AccountAuthenticatorResponse response,
             Account account, String[] features) throws NetworkErrorException {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -99,8 +93,6 @@ public class Authenticator extends AbstractAccountAuthenticator {
     public Bundle updateCredentials(AccountAuthenticatorResponse response,
             Account account, String authTokenType, Bundle options)
             throws NetworkErrorException {
-        // TODO Auto-generated method stub
         return null;
     }
-
 }
