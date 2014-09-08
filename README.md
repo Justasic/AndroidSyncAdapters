@@ -7,6 +7,7 @@ See wiki for more information and server compatibility list (https://github.com/
 Synchronize your Android phone with a CalDAV server like [Baïkal](http://baikal-server.com/)
 
 # Build
+
 ## Configure release
 1. Create `gradle.properties` from template `_gradle.properties`
 2. Modify `gradle.properties` with your settings
