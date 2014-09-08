@@ -39,3 +39,10 @@ Navigate to the project root and run
 Choose Import Project, choose ACalDAV Folder.
 If you get an error about unregistered Git Root, select Add Git root.
 More information on http://developer.android.com/sdk/installing/studio-build.html
+
+## Acknowledgements
+This projects uses some open source projects like:
+* [backport-util-concurrent](http://sourceforge.net/projects/backport-jsr166/)
+* [commons-codec](http://commons.apache.org/proper/commons-codec/)
+* [commons-lang](http://commons.apache.org/proper/commons-lang/)
+* [ical4j](http://build.mnode.org/projects/ical4j/)
