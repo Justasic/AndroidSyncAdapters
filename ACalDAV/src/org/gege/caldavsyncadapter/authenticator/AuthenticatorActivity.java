@@ -59,7 +59,9 @@ import java.util.Locale;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import de.jdevel.acaldav.App;
 import de.jdevel.acaldav.R;
+import de.jdevel.acaldav.utilities.AccountUtility;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -125,7 +127,6 @@ public class AuthenticatorActivity extends Activity {
 
     public AuthenticatorActivity() {
         super();
-
     }
 
     @Override
@@ -142,6 +143,7 @@ public class AuthenticatorActivity extends Activity {
         mUserView.setText(mUser);
 
         mContext = getBaseContext();
+        App.setContext(mContext);
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView
@@ -179,6 +181,7 @@ public class AuthenticatorActivity extends Activity {
         });
 
         mAccountnameView = (EditText) findViewById(R.id.accountname);
+        mAccountnameView.setText(AccountUtility.getGoogleMail());
 
         mLoginFormView = findViewById(R.id.login_form);
         mLoginStatusView = findViewById(R.id.login_status);
