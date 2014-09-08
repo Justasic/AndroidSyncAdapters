@@ -335,7 +335,6 @@ public class CaldavFacade {
     }
 
     /**
-     * TODO: testConnection should return only an instance of
      * TestConnectionResult without throwing an exception or only throw checked
      * exceptions so you don't have to check the result of this function AND
      * handle the exceptions

@@ -72,6 +72,8 @@ import android.provider.CalendarContract.Reminders;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 
+import de.jdevel.acaldav.App;
+
 //import android.accounts.Account;
 //import android.content.ContentProviderClient;
 //import android.content.ContentValues;
@@ -325,6 +327,7 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
     public boolean createIcs(String strUid) {
         boolean result = false;
         TimeZone timeZone = null;
+        Thread.currentThread().setContextClassLoader(App.getContext().getClassLoader());
         TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
 //TODO: do not simply create the ics-file new. take into account the RAWDATA if available
                 /*
