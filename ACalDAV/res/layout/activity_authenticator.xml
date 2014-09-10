@@ -1,6 +1,6 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
        xmlns:tools="http://schemas.android.com/tools"
-       tools:context=".AuthenticatorActivity">
+       tools:context="org.gege.caldavsyncadapter.authenticator.AuthenticatorActivity">
 
     <!-- Login progress -->
 
@@ -40,16 +40,20 @@
                 style="@style/LoginFormContainer"
                 android:orientation="vertical">
 
-            <EditText
+            <de.jdevel.acaldav.widget.IconfiedEditText
                     android:id="@+id/user"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_user"
                     android:inputType="text"
                     android:maxLines="1"
-                    android:singleLine="true"/>
+                    android:singleLine="true">
 
-            <EditText
+                <requestFocus/>
+            </de.jdevel.acaldav.widget.IconfiedEditText>
+
+
+            <de.jdevel.acaldav.widget.IconfiedEditText
                     android:id="@+id/password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -61,16 +65,13 @@
                     android:maxLines="1"
                     android:singleLine="true"/>
 
-            <EditText
+            <de.jdevel.acaldav.widget.IconfiedEditText
                     android:id="@+id/url"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:hint="@string/prompt_url"
-                    android:inputType="textUri">
-
-                <requestFocus/>
-            </EditText>
+                    android:inputType="textUri"/>
 
             <CheckBox
                     android:id="@+id/trustall"
@@ -80,14 +81,16 @@
                     android:text="@string/trustall"
                     android:visibility="gone"/>
 
-            <EditText
+            <de.jdevel.acaldav.widget.IconfiedEditText
                     android:id="@+id/accountname"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_accountname"
                     android:inputType="text"
                     android:maxLines="1"
-                    android:singleLine="true"/>
+                    android:singleLine="true"
+                    android:drawableRight="@drawable/ic_gmail"
+                    />
 
             <Button
                     android:id="@+id/sign_in_button"

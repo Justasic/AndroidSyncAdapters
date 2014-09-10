@@ -35,6 +35,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -62,6 +63,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import de.jdevel.acaldav.App;
 import de.jdevel.acaldav.R;
 import de.jdevel.acaldav.utilities.AccountUtility;
+import de.jdevel.acaldav.widget.DrawableClickListener;
+import de.jdevel.acaldav.widget.IconfiedEditText;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -103,9 +106,9 @@ public class AuthenticatorActivity extends Activity {
     private Context mContext;
 
     // UI references.
-    private EditText mUserView;
+    private IconfiedEditText mUserView;
 
-    private EditText mPasswordView;
+    private IconfiedEditText mPasswordText;
 
     private View mLoginFormView;
 
@@ -119,11 +122,15 @@ public class AuthenticatorActivity extends Activity {
 
     private String mURL;
 
-    private EditText mURLView;
+    private IconfiedEditText mURLText;
 
     private String mAccountname;
 
-    private EditText mAccountnameView;
+    private IconfiedEditText mAccountnameText;
+
+    private Drawable mGmailButton;
+
+    private Drawable mClearButton;
 
     public AuthenticatorActivity() {
         super();
@@ -139,14 +146,16 @@ public class AuthenticatorActivity extends Activity {
 
         // Set up the login form.
         mUser = getIntent().getStringExtra(EXTRA_EMAIL);
-        mUserView = (EditText) findViewById(R.id.user);
+        mUserView = (IconfiedEditText) findViewById(R.id.user);
         mUserView.setText(mUser);
+        mUserView.addClearButton();
 
         mContext = getBaseContext();
         App.setContext(mContext);
 
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView
+        mPasswordText = (IconfiedEditText) findViewById(R.id.password);
+        mPasswordText.addClearButton();
+        mPasswordText
                 .setOnEditorActionListener(new TextView.OnEditorActionListener() {
                     @Override
                     public boolean onEditorAction(TextView textView, int id,
@@ -159,9 +168,10 @@ public class AuthenticatorActivity extends Activity {
                     }
                 });
 
-        mURLView = (EditText) findViewById(R.id.url);
+        mURLText = (IconfiedEditText) findViewById(R.id.url);
+        mURLText.addClearButton();
         // if the URL start with "https" show the option to disable SSL host verification
-        mURLView.addTextChangedListener(new TextWatcher() {
+        mURLText.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String url = ((EditText) findViewById(R.id.url)).getText().toString();
@@ -180,8 +190,38 @@ public class AuthenticatorActivity extends Activity {
             }
         });
 
-        mAccountnameView = (EditText) findViewById(R.id.accountname);
-        mAccountnameView.setText(AccountUtility.getGoogleMail());
+        mClearButton = getResources().getDrawable(android.R.drawable.ic_menu_close_clear_cancel);
+        mGmailButton = getResources().getDrawable(R.drawable.ic_gmail);
+        mAccountnameText = (IconfiedEditText) findViewById(R.id.accountname);
+        mAccountnameText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Drawable drawable = TextUtils.isEmpty(s.toString()) ? mGmailButton : mClearButton;
+                mAccountnameText
+                        .setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+       mAccountnameText.setDrawableClickListener(new DrawableClickListener() {
+           @Override
+           public void onClick(DrawablePosition target) {
+               switch (target) {
+                   case RIGHT:
+                       if (TextUtils.isEmpty(mAccountnameText.getText().toString())) {
+                           mAccountnameText.setText(AccountUtility.getGoogleMail());
+                       } else {
+                           mAccountnameText.setText("");
+                       }
+               }
+           }
+       });
 
         mLoginFormView = findViewById(R.id.login_form);
         mLoginStatusView = findViewById(R.id.login_status);
@@ -219,13 +259,13 @@ public class AuthenticatorActivity extends Activity {
 
         // Reset errors.
         mUserView.setError(null);
-        mPasswordView.setError(null);
+        mPasswordText.setError(null);
 
         // Store values at the time of the login attempt.
         mUser = mUserView.getText().toString();
-        mPassword = mPasswordView.getText().toString();
-        mURL = mURLView.getText().toString();
-        mAccountname = mAccountnameView.getText().toString();
+        mPassword = mPasswordText.getText().toString();
+        mURL = mURLText.getText().toString();
+        mAccountname = mAccountnameText.getText().toString();
         mTrustAll = (mTrustCheckBox.isChecked() ? "false" : "true");
         boolean cancel = false;
         View focusView = null;
@@ -235,16 +275,16 @@ public class AuthenticatorActivity extends Activity {
             String TestUrl = mAccountManager
                     .getUserData(TestAccount, AuthenticatorActivity.USER_DATA_URL_KEY);
             if (TestUrl != null) {
-                mAccountnameView.setError(getString(R.string.error_account_already_in_use));
-                focusView = mAccountnameView;
+                mAccountnameText.setError(getString(R.string.error_account_already_in_use));
+                focusView = mAccountnameText;
                 cancel = true;
             }
         }
 
         // Check for a valid password.
         if (TextUtils.isEmpty(mPassword)) {
-            mPasswordView.setError(getString(R.string.error_field_required));
-            focusView = mPasswordView;
+            mPasswordText.setError(getString(R.string.error_field_required));
+            focusView = mPasswordText;
             cancel = true;
         }
 
@@ -472,23 +512,23 @@ public class AuthenticatorActivity extends Activity {
                             .makeText(getApplicationContext(), R.string.error_incorrect_url_format,
                                     duration);
                     toast.show();
-                    mURLView.setError(getString(R.string.error_incorrect_url_format));
-                    mURLView.requestFocus();
+                    mURLText.setError(getString(R.string.error_incorrect_url_format));
+                    mURLText.requestFocus();
                     break;
                 case InvalidResponse:
                     toast = Toast
                             .makeText(getApplicationContext(), R.string.error_invalid_server_answer,
                                     duration);
                     toast.show();
-                    mURLView.setError(getString(R.string.error_invalid_server_answer));
-                    mURLView.requestFocus();
+                    mURLText.setError(getString(R.string.error_invalid_server_answer));
+                    mURLText.requestFocus();
                     break;
                 case WrongUrl:
                     toast = Toast
                             .makeText(getApplicationContext(), R.string.error_wrong_url, duration);
                     toast.show();
-                    mURLView.setError(getString(R.string.error_wrong_url));
-                    mURLView.requestFocus();
+                    mURLText.setError(getString(R.string.error_wrong_url));
+                    mURLText.requestFocus();
                     break;
 
                 case GeneralSecurityException:
@@ -496,8 +536,8 @@ public class AuthenticatorActivity extends Activity {
                 case UnkonwnException:
                     break;
                 case WrongCredentials:
-                    mPasswordView.setError(getString(R.string.error_incorrect_password));
-                    mPasswordView.requestFocus();
+                    mPasswordText.setError(getString(R.string.error_incorrect_password));
+                    mPasswordText.requestFocus();
                     break;
 
                 case ConnectionRefused:
@@ -505,29 +545,29 @@ public class AuthenticatorActivity extends Activity {
                             .makeText(getApplicationContext(), R.string.error_connection_refused,
                                     duration);
                     toast.show();
-                    mURLView.setError(getString(R.string.error_connection_refused));
-                    mURLView.requestFocus();
+                    mURLText.setError(getString(R.string.error_connection_refused));
+                    mURLText.requestFocus();
                     break;
                 case UNTRUSTED_CERT:
                     toast = Toast.makeText(getApplicationContext(),
                             getString(R.string.error_untrusted_certificate), duration);
                     toast.show();
-                    mURLView.setError(getString(R.string.error_ssl));
-                    mURLView.requestFocus();
+                    mURLText.setError(getString(R.string.error_ssl));
+                    mURLText.requestFocus();
                     break;
                 case Account_Already_In_Use:
                     toast = Toast.makeText(getApplicationContext(),
                             R.string.error_account_already_in_use, duration);
                     toast.show();
-                    mURLView.setError(getString(R.string.error_account_already_in_use));
-                    mURLView.requestFocus();
+                    mURLText.setError(getString(R.string.error_account_already_in_use));
+                    mURLText.requestFocus();
                     break;
                 default:
                     toast = Toast.makeText(getApplicationContext(), R.string.error_unkown_error,
                             duration);
                     toast.show();
-                    mURLView.setError(getString(R.string.error_unkown_error));
-                    mURLView.requestFocus();
+                    mURLText.setError(getString(R.string.error_unkown_error));
+                    mURLText.requestFocus();
                     break;
             }
 
