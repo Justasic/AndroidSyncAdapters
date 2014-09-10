@@ -4,6 +4,10 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.EditText;
@@ -25,16 +29,20 @@ public class IconfiedEditText extends EditText {
 
     private DrawableClickListener clickListener;
 
+    private Drawable mClearButton;
+
+    @SuppressWarnings("UnusedDeclaration")
     public IconfiedEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
         // this Contructure required when you are using this view in xml
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public IconfiedEditText(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
 
     }
@@ -64,7 +72,7 @@ public class IconfiedEditText extends EditText {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         Rect bounds;
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             actionX = (int) event.getX();
@@ -83,7 +91,6 @@ public class IconfiedEditText extends EditText {
 
             // this works for left since container shares 0,0 origin with bounds
             if (drawableLeft != null) {
-                bounds = null;
                 bounds = drawableLeft.getBounds();
 
                 int x, y;
@@ -176,12 +183,53 @@ public class IconfiedEditText extends EditText {
         return super.onTouchEvent(event);
     }
 
+    public void addClearButton() {
+        mClearButton = getResources().getDrawable(android.R.drawable.ic_menu_close_clear_cancel);
+        setCompoundDrawablesWithIntrinsicBounds(null, null, TextUtils
+                .isEmpty(getText().toString()) ? null : mClearButton, null);
+        setDrawableClickListener(new DrawableClickListener() {
+            @Override
+            public void onClick(DrawablePosition target) {
+                switch (target) {
+                    case TOP:
+                        break;
+                    case BOTTOM:
+                        break;
+                    case LEFT:
+                        break;
+                    case RIGHT:
+                        setText("");
+                        break;
+                }
+            }
+        });
+        addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                setCompoundDrawablesWithIntrinsicBounds(null, null,
+                        TextUtils.isEmpty(getText().toString()) ? null : mClearButton, null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+    }
+
+
     @Override
     protected void finalize() throws Throwable {
         drawableRight = null;
         drawableBottom = null;
         drawableLeft = null;
         drawableTop = null;
+        mClearButton = null;
         super.finalize();
     }
 

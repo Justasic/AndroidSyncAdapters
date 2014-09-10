@@ -40,16 +40,20 @@
                 style="@style/LoginFormContainer"
                 android:orientation="vertical">
 
-            <EditText
+            <de.jdevel.acaldav.widget.IconfiedEditText
                     android:id="@+id/user"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_user"
                     android:inputType="text"
                     android:maxLines="1"
-                    android:singleLine="true"/>
+                    android:singleLine="true">
 
-            <EditText
+                <requestFocus/>
+            </de.jdevel.acaldav.widget.IconfiedEditText>
+
+
+            <de.jdevel.acaldav.widget.IconfiedEditText
                     android:id="@+id/password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -61,16 +65,13 @@
                     android:maxLines="1"
                     android:singleLine="true"/>
 
-            <EditText
+            <de.jdevel.acaldav.widget.IconfiedEditText
                     android:id="@+id/url"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:hint="@string/prompt_url"
-                    android:inputType="textUri">
-
-                <requestFocus/>
-            </EditText>
+                    android:inputType="textUri"/>
 
             <CheckBox
                     android:id="@+id/trustall"
