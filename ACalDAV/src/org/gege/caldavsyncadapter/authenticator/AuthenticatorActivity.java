@@ -35,6 +35,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -62,6 +63,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import de.jdevel.acaldav.App;
 import de.jdevel.acaldav.R;
 import de.jdevel.acaldav.utilities.AccountUtility;
+import de.jdevel.acaldav.widget.DrawableClickListener;
+import de.jdevel.acaldav.widget.IconfiedEditText;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -123,7 +126,11 @@ public class AuthenticatorActivity extends Activity {
 
     private String mAccountname;
 
-    private EditText mAccountnameView;
+    private IconfiedEditText mAccountnameView;
+
+    private Drawable mGmailButton;
+
+    private Drawable mClearButton;
 
     public AuthenticatorActivity() {
         super();
@@ -180,8 +187,38 @@ public class AuthenticatorActivity extends Activity {
             }
         });
 
-        mAccountnameView = (EditText) findViewById(R.id.accountname);
-        mAccountnameView.setText(AccountUtility.getGoogleMail());
+        mClearButton = getResources().getDrawable(android.R.drawable.ic_menu_close_clear_cancel);
+        mGmailButton = getResources().getDrawable(R.drawable.ic_gmail);
+        mAccountnameView = (IconfiedEditText) findViewById(R.id.accountname);
+        mAccountnameView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                Drawable drawable = TextUtils.isEmpty(s.toString()) ? mGmailButton : mClearButton;
+                mAccountnameView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
+                mAccountnameView.invalidate();
+            }
+        });
+       mAccountnameView.setDrawableClickListener(new DrawableClickListener() {
+           @Override
+           public void onClick(DrawablePosition target) {
+               switch (target){
+                   case RIGHT:
+                       if(TextUtils.isEmpty(mAccountnameView.getText().toString())) {
+                           mAccountnameView.setText(AccountUtility.getGoogleMail());
+                       } else{
+                           mAccountnameView.setText("");
+                       }
+               }
+           }
+       });
 
         mLoginFormView = findViewById(R.id.login_form);
         mLoginStatusView = findViewById(R.id.login_status);
