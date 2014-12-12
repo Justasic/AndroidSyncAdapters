@@ -14,7 +14,7 @@ android {
             resources.srcDirs = ['src']
             aidl.srcDirs = ['src']
             renderscript.srcDirs = ['src']
-            res.srcDirs = ['res']
+            res.srcDirs = ['res']                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
             assets.srcDirs = ['assets']
         }
 
@@ -47,7 +47,7 @@ android {
     buildTypes {
 
         release {
-            runProguard true
+            minifyEnabled true
             signingConfig signingConfigs.release
             proguardFile 'proguard-project.txt'
         }
@@ -61,9 +61,9 @@ android {
 
         //noinspection GroovyAssignabilityCheck
         applicationVariants.all { variant ->
-            def file = variant.outputFile
-            variant.outputFile = new File(file.parent, file.name.
-                    replace("-release.apk", "_v" + versionName + "_r" + versionCode + ".apk"))
+            variant.outputs.each  { output ->
+                output.outputFile = new File(output.outputFile.parent, output.outputFile.name.replace(".apk", "-" + defaultConfig.versionName + ".apk"))
+            }
         }
     }
 
@@ -80,5 +80,18 @@ dependencies {
     compile 'commons-codec:commons-codec:1.5'
     compile 'commons-lang:commons-lang:2.6'
     compile 'org.mnode.ical4j:ical4j:1.0.5.2'
+    repositories {
+        mavenCentral()
+    }
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.0.0'
+    }
 }
 
