@@ -33,6 +33,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
@@ -127,6 +128,10 @@ public class AuthenticatorActivity extends Activity {
     private String mAccountname;
 
     private IconfiedEditText mAccountnameText;
+
+    private String mUpdateInterval;
+
+    private IconfiedEditText mUpdateIntervalView;
 
     private Drawable mGmailButton;
 
@@ -223,6 +228,9 @@ public class AuthenticatorActivity extends Activity {
            }
        });
 
+        mUpdateIntervalView = (IconfiedEditText) findViewById(R.id.updateinterval);
+        mUpdateIntervalView.addClearButton();
+
         mLoginFormView = findViewById(R.id.login_form);
         mLoginStatusView = findViewById(R.id.login_status);
         mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
@@ -266,6 +274,7 @@ public class AuthenticatorActivity extends Activity {
         mPassword = mPasswordText.getText().toString();
         mURL = mURLText.getText().toString();
         mAccountname = mAccountnameText.getText().toString();
+        mUpdateInterval = mUpdateIntervalView.getText().toString();
         mTrustAll = (mTrustCheckBox.isChecked() ? "false" : "true");
         boolean cancel = false;
         View focusView = null;
@@ -299,6 +308,20 @@ public class AuthenticatorActivity extends Activity {
         //	focusView = mUserView;
         //	cancel = true;
         //}
+
+        if (TextUtils.isEmpty(mUpdateInterval)) {
+            mUpdateIntervalView.setError(getString(R.string.error_field_required));
+            focusView = mUpdateIntervalView;
+            cancel = true;
+        } else {
+            try {
+                Integer.parseInt(mUpdateInterval);
+            } catch (Exception e) {
+                mUpdateIntervalView.setError(getString(R.string.error_invalid_number));
+                focusView = mUpdateIntervalView;
+                cancel = true;
+            }
+        }
 
         if (cancel) {
             // There was an error; don't attempt login and focus the first
@@ -434,7 +457,10 @@ public class AuthenticatorActivity extends Activity {
                         final Account account = new Account(mUser, ACCOUNT_TYPE);
                         if (mAccountManager.addAccountExplicitly(account, mPassword, null)) {
                             Log.v(TAG, "new account created");
+                            final int updateFrequency = Integer.parseInt(mUpdateInterval) * 60;
                             mAccountManager.setUserData(account, USER_DATA_URL_KEY, mURL);
+                            ContentResolver.setSyncAutomatically(account, "com.android.calendar", true);
+                            ContentResolver.addPeriodicSync(account, "com.android.calendar", new Bundle(), updateFrequency);
                         } else {
                             Log.v(TAG, "no new account created");
                             Result = LoginResult.Account_Already_In_Use;
@@ -449,12 +475,15 @@ public class AuthenticatorActivity extends Activity {
                         }
                         if (mAccountManager.addAccountExplicitly(account, mPassword, null)) {
                             Log.v(TAG, "new account created");
+                            final int updateFrequency = Integer.parseInt(mUpdateInterval) * 60;
                             mAccountManager.setUserData(account, USER_DATA_URL_KEY, mURL);
                             mAccountManager.setUserData(account, USER_DATA_USERNAME, mUser);
                             mAccountManager.setUserData(account, USER_DATA_VERSION,
                                     CURRENT_USER_DATA_VERSION);
                             mAccountManager.setUserData(account, Constants.USER_DATA_TRUST_ALL_KEY,
                                     mTrustAll);
+                            ContentResolver.setSyncAutomatically(account, "com.android.calendar", true);
+                			ContentResolver.addPeriodicSync(account, "com.android.calendar", new Bundle(), updateFrequency);
                         } else {
                             Log.v(TAG, "no new account created");
                             Result = LoginResult.Account_Already_In_Use;

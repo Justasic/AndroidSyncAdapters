@@ -92,6 +92,15 @@
                     android:drawableRight="@drawable/ic_gmail"
                     />
 
+            <de.jdevel.acaldav.widget.IconfiedEditText
+                    android:id="@+id/updateinterval"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_updateinterval"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
             <Button
                     android:id="@+id/sign_in_button"
                     android:layout_width="wrap_content"
