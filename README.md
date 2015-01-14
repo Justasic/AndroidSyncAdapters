@@ -1,6 +1,6 @@
 # aCalDAV
 CalDAV Sync Adapter for Android
-forked from [gggard/AndroidCaldavSyncAdapter](https://github.com/gggard/AndroidCaldavSyncAdapater)
+forked from [wildgarden/AndroidCaldavSyncAdapater](https://github.com/wildgarden/AndroidCaldavSyncAdapater)
 See wiki for more information and server compatibility list (https://github.com/gggard/AndroidCaldavSyncAdapater/wiki)
 
 # Contents
