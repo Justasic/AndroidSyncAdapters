@@ -8,3 +8,4 @@ buildQuality.gradle_
 aCalDAV/gradle.properties
 wait_for_emulator
 resources
+.gradle/
