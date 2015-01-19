@@ -21,6 +21,12 @@
 
 package org.gege.caldavsyncadapter.android.entities;
 
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.CalendarContract.Attendees;
+import android.provider.CalendarContract.Events;
+import android.provider.CalendarContract.Reminders;
+
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ComponentList;
@@ -62,12 +68,6 @@ import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Version;
 
 import org.gege.caldavsyncadapter.caldav.entities.CalendarEvent;
-
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.CalendarContract.Attendees;
-import android.provider.CalendarContract.Events;
-import android.provider.CalendarContract.Reminders;
 
 import java.net.URISyntaxException;
 import java.text.ParseException;

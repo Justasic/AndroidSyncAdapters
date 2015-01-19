@@ -21,6 +21,20 @@
 
 package org.gege.caldavsyncadapter.caldav.entities;
 
+import android.accounts.Account;
+import android.content.ContentProviderClient;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.SyncStats;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.RemoteException;
+import android.provider.CalendarContract.Attendees;
+import android.provider.CalendarContract.Calendars;
+import android.provider.CalendarContract.Events;
+import android.provider.CalendarContract.Reminders;
+import android.util.Log;
+
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
@@ -57,20 +71,6 @@ import org.gege.caldavsyncadapter.syncadapter.SyncAdapter;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-
-import android.accounts.Account;
-import android.content.ContentProviderClient;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.SyncStats;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.RemoteException;
-import android.provider.CalendarContract.Attendees;
-import android.provider.CalendarContract.Calendars;
-import android.provider.CalendarContract.Events;
-import android.provider.CalendarContract.Reminders;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -965,14 +965,14 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
             Log.d(TAG, "Creating calendar event for " + uri.toString());
 
             //check the attendees
-            java.util.ArrayList<ContentValues> AttendeeList = this.getAttandees();
+            ArrayList<ContentValues> AttendeeList = this.getAttandees();
             for (ContentValues Attendee : AttendeeList) {
                 this.mProvider.insert(Attendees.CONTENT_URI, Attendee);
                 CountAttendees += 1;
             }
 
             //check the reminders
-            java.util.ArrayList<ContentValues> ReminderList = this.getReminders();
+            ArrayList<ContentValues> ReminderList = this.getReminders();
             for (ContentValues Reminder : ReminderList) {
                 this.mProvider.insert(Reminders.CONTENT_URI, Reminder);
                 CountReminders += 1;

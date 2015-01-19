@@ -17,16 +17,11 @@ import android.widget.EditText;
  */
 public class IconfiedEditText extends EditText {
 
-    private Drawable drawableRight;
-
-    private Drawable drawableLeft;
-
-    private Drawable drawableTop;
-
-    private Drawable drawableBottom;
-
     int actionX, actionY;
-
+    private Drawable drawableRight;
+    private Drawable drawableLeft;
+    private Drawable drawableTop;
+    private Drawable drawableBottom;
     private DrawableClickListener clickListener;
 
     private Drawable mClearButton;
@@ -55,7 +50,7 @@ public class IconfiedEditText extends EditText {
 
     @Override
     public void setCompoundDrawables(Drawable left, Drawable top,
-            Drawable right, Drawable bottom) {
+                                     Drawable right, Drawable bottom) {
         if (left != null) {
             drawableLeft = left;
         }

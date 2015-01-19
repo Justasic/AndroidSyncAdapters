@@ -21,15 +21,6 @@
 
 package org.gege.caldavsyncadapter.caldav.entities;
 
-import org.apache.http.client.ClientProtocolException;
-import org.gege.caldavsyncadapter.CalendarColors;
-import org.gege.caldavsyncadapter.Event;
-import org.gege.caldavsyncadapter.android.entities.AndroidEvent;
-import org.gege.caldavsyncadapter.caldav.CaldavFacade;
-import org.gege.caldavsyncadapter.syncadapter.SyncAdapter;
-import org.gege.caldavsyncadapter.syncadapter.notifications.NotificationsHelper;
-import org.xml.sax.SAXException;
-
 import android.accounts.Account;
 import android.content.ContentProviderClient;
 import android.content.ContentUris;
@@ -41,6 +32,15 @@ import android.os.RemoteException;
 import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
 import android.util.Log;
+
+import org.apache.http.client.ClientProtocolException;
+import org.gege.caldavsyncadapter.CalendarColors;
+import org.gege.caldavsyncadapter.Event;
+import org.gege.caldavsyncadapter.android.entities.AndroidEvent;
+import org.gege.caldavsyncadapter.caldav.CaldavFacade;
+import org.gege.caldavsyncadapter.syncadapter.SyncAdapter;
+import org.gege.caldavsyncadapter.syncadapter.notifications.NotificationsHelper;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -106,7 +106,7 @@ public class DavCalendar {
      * @param cur must be a cursor from "ContentProviderClient" with Uri Calendars.CONTENT_URI
      */
     public DavCalendar(Account account, ContentProviderClient provider, Cursor cur,
-            CalendarSource source, String serverUrl) {
+                       CalendarSource source, String serverUrl) {
         this.mAccount = account;
         this.mProvider = provider;
         this.foundClientSide = true;
@@ -294,7 +294,7 @@ public class DavCalendar {
      * @return the found android calendar or null of fails
      */
     public Uri checkAndroidCalendarList(CalendarList androidCalList,
-            android.content.Context context) throws RemoteException {
+                                        android.content.Context context) throws RemoteException {
         Uri androidCalendarUri = null;
         boolean isCalendarExist = false;
 
@@ -389,7 +389,7 @@ public class DavCalendar {
      * @return the new androidCalendar or null if fails
      */
     private DavCalendar createNewAndroidCalendar(DavCalendar serverCalendar, int index,
-            android.content.Context context) {
+                                                 android.content.Context context) {
         Uri newUri = null;
         DavCalendar Result = null;
 

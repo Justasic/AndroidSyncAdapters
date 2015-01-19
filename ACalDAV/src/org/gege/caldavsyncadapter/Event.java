@@ -44,7 +44,7 @@ abstract public class Event {
     /**
      * store the whole VEVENT in here
      * missing TAGs they might be missing for google update
-     *
+     * <p/>
      * CREATED:20130906T102857Z
      * DTSTAMP:20130906T102857Z
      * LAST-MODIFIED:20130906T102857Z

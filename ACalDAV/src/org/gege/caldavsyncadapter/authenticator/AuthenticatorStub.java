@@ -45,8 +45,8 @@ public class AuthenticatorStub extends AbstractAccountAuthenticator {
 
     @Override
     public Bundle addAccount(AccountAuthenticatorResponse response,
-            String accountType, String authTokenType,
-            String[] requiredFeatures, Bundle options)
+                             String accountType, String authTokenType,
+                             String[] requiredFeatures, Bundle options)
             throws NetworkErrorException {
 
         Log.v(TAG, "addAccount()");
@@ -61,19 +61,19 @@ public class AuthenticatorStub extends AbstractAccountAuthenticator {
 
     @Override
     public Bundle confirmCredentials(AccountAuthenticatorResponse response,
-            Account account, Bundle options) throws NetworkErrorException {
+                                     Account account, Bundle options) throws NetworkErrorException {
         return null;
     }
 
     @Override
     public Bundle editProperties(AccountAuthenticatorResponse response,
-            String accountType) {
+                                 String accountType) {
         return null;
     }
 
     @Override
     public Bundle getAuthToken(AccountAuthenticatorResponse response,
-            Account account, String authTokenType, Bundle options)
+                               Account account, String authTokenType, Bundle options)
             throws NetworkErrorException {
         return null;
     }
@@ -85,13 +85,13 @@ public class AuthenticatorStub extends AbstractAccountAuthenticator {
 
     @Override
     public Bundle hasFeatures(AccountAuthenticatorResponse response,
-            Account account, String[] features) throws NetworkErrorException {
+                              Account account, String[] features) throws NetworkErrorException {
         return null;
     }
 
     @Override
     public Bundle updateCredentials(AccountAuthenticatorResponse response,
-            Account account, String authTokenType, Bundle options)
+                                    Account account, String authTokenType, Bundle options)
             throws NetworkErrorException {
         return null;
     }

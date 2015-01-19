@@ -1,14 +1,14 @@
 package org.gege.caldavsyncadapter.caldav.entities;
 
-import org.gege.caldavsyncadapter.caldav.entities.DavCalendar.CalendarSource;
-import org.gege.caldavsyncadapter.syncadapter.notifications.NotificationsHelper;
-
 import android.accounts.Account;
 import android.content.ContentProviderClient;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.CalendarContract.Calendars;
+
+import org.gege.caldavsyncadapter.caldav.entities.DavCalendar.CalendarSource;
+import org.gege.caldavsyncadapter.syncadapter.notifications.NotificationsHelper;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class CalendarList {
     private ContentProviderClient mProvider = null;
 
     public CalendarList(Account account, ContentProviderClient provider, CalendarSource source,
-            String serverUrl) {
+                        String serverUrl) {
         this.mAccount = account;
         this.mProvider = provider;
         this.Source = source;

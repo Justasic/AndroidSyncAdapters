@@ -14,7 +14,7 @@ android {
             resources.srcDirs = ['src']
             aidl.srcDirs = ['src']
             renderscript.srcDirs = ['src']
-            res.srcDirs = ['res']                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+            res.srcDirs = ['res']
             assets.srcDirs = ['assets']
         }
 
@@ -61,7 +61,7 @@ android {
 
         //noinspection GroovyAssignabilityCheck
         applicationVariants.all { variant ->
-            variant.outputs.each  { output ->
+            variant.outputs.each { output ->
                 output.outputFile = new File(output.outputFile.parent, output.outputFile.name.replace(".apk", "-" + defaultConfig.versionName + ".apk"))
             }
         }

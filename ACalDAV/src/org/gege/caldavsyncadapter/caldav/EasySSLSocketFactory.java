@@ -21,13 +21,13 @@
 
 package org.gege.caldavsyncadapter.caldav;
 
+import android.util.Log;
+
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.conn.scheme.LayeredSocketFactory;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-
-import android.util.Log;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -63,13 +63,13 @@ public final class EasySSLSocketFactory implements
 
             @Override
             public void checkClientTrusted(X509Certificate[] chain,
-                    String authType) throws CertificateException {
+                                           String authType) throws CertificateException {
                 // do nothing
             }
 
             @Override
             public void checkServerTrusted(X509Certificate[] chain,
-                    String authType) throws CertificateException {
+                                           String authType) throws CertificateException {
                 // do nothing
             }
 
@@ -99,7 +99,7 @@ public final class EasySSLSocketFactory implements
 
     @Override
     public Socket createSocket(Socket socket, String host, int port,
-            boolean autoClose) throws IOException, UnknownHostException {
+                               boolean autoClose) throws IOException, UnknownHostException {
         SSLSocket sslSocket = (SSLSocket) this.socketfactory.createSocket(
                 socket, host, port, autoClose);
         return sslSocket;
@@ -107,7 +107,7 @@ public final class EasySSLSocketFactory implements
 
     @Override
     public Socket connectSocket(Socket sock, String host, int port,
-            InetAddress localAddress, int localPort, HttpParams params)
+                                InetAddress localAddress, int localPort, HttpParams params)
             throws IOException, UnknownHostException, ConnectTimeoutException {
         if (host == null) {
             throw new IllegalArgumentException(

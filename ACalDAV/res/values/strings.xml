@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string translatable="false" name="app_name">aCalDAV</string>
-    <string translatable="false" name="label">aCalDAV</string>
+    <string name="app_name" translatable="false">aCalDAV</string>
+    <string name="label" translatable="false">aCalDAV</string>
     <string name="menu_settings">Settings</string>
-    <string translatable="false" name="title_activity_sync_status_report">aCalDAV Sync Status</string>
+    <string name="title_activity_sync_status_report" translatable="false">aCalDAV Sync Status</string>
 
 
     <string name="title_activity_authenticator">Sign in</string>
