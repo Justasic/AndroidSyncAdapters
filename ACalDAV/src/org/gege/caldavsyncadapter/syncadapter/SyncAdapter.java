@@ -21,23 +21,6 @@
 
 package org.gege.caldavsyncadapter.syncadapter;
 
-import net.fortuna.ical4j.data.ParserException;
-
-import org.apache.http.ParseException;
-import org.apache.http.client.ClientProtocolException;
-import org.gege.caldavsyncadapter.Constants;
-import org.gege.caldavsyncadapter.Event;
-import org.gege.caldavsyncadapter.android.entities.AndroidEvent;
-import org.gege.caldavsyncadapter.authenticator.AuthenticatorActivity;
-import org.gege.caldavsyncadapter.caldav.CaldavFacade;
-import org.gege.caldavsyncadapter.caldav.CaldavProtocolException;
-import org.gege.caldavsyncadapter.caldav.entities.CalendarEvent;
-import org.gege.caldavsyncadapter.caldav.entities.CalendarList;
-import org.gege.caldavsyncadapter.caldav.entities.DavCalendar;
-import org.gege.caldavsyncadapter.caldav.entities.DavCalendar.CalendarSource;
-import org.gege.caldavsyncadapter.syncadapter.notifications.NotificationsHelper;
-import org.xml.sax.SAXException;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.AbstractThreadedSyncAdapter;
@@ -57,6 +40,23 @@ import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Reminders;
 import android.util.Log;
+
+import net.fortuna.ical4j.data.ParserException;
+
+import org.apache.http.ParseException;
+import org.apache.http.client.ClientProtocolException;
+import org.gege.caldavsyncadapter.Constants;
+import org.gege.caldavsyncadapter.Event;
+import org.gege.caldavsyncadapter.android.entities.AndroidEvent;
+import org.gege.caldavsyncadapter.authenticator.AuthenticatorActivity;
+import org.gege.caldavsyncadapter.caldav.CaldavFacade;
+import org.gege.caldavsyncadapter.caldav.CaldavProtocolException;
+import org.gege.caldavsyncadapter.caldav.entities.CalendarEvent;
+import org.gege.caldavsyncadapter.caldav.entities.CalendarList;
+import org.gege.caldavsyncadapter.caldav.entities.DavCalendar;
+import org.gege.caldavsyncadapter.caldav.entities.DavCalendar.CalendarSource;
+import org.gege.caldavsyncadapter.syncadapter.notifications.NotificationsHelper;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -139,7 +139,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority,
-            ContentProviderClient provider, SyncResult syncResult) {
+                              ContentProviderClient provider, SyncResult syncResult) {
         boolean bolError = false;
 
         String url = mAccountManager.getUserData(account, AuthenticatorActivity.USER_DATA_URL_KEY);
@@ -210,7 +210,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         Log.d(TAG, "CTag has not changed, nothing to do");
 
 						/* this is unnecessary. "SkippedEntries" are:
-						 * Counter for tracking how many entries, either from the server or the local store,
+                         * Counter for tracking how many entries, either from the server or the local store,
 						 * were ignored during the sync operation. This could happen if the SyncAdapter detected
 						 * some unparsable data but decided to skip it and move on rather than failing immediately.
 						 */

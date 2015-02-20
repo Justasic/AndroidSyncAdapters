@@ -21,11 +21,11 @@
 
 package org.gege.caldavsyncadapter.caldav.xml;
 
+import android.util.Log;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import android.util.Log;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -56,7 +56,7 @@ public class CalendarHomeHandler extends DefaultHandler {
 
     @Override
     public void startElement(String uri, String localName, String qName,
-            Attributes attributes) throws SAXException {
+                             Attributes attributes) throws SAXException {
         if (CALENDAR_HOME_SET.equals(localName)) {
             isInCalendarHomeSet = true;
         }

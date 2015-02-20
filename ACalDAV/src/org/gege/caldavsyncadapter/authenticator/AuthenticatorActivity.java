@@ -21,12 +21,6 @@
 
 package org.gege.caldavsyncadapter.authenticator;
 
-import org.apache.http.conn.HttpHostConnectException;
-import org.gege.caldavsyncadapter.Constants;
-import org.gege.caldavsyncadapter.caldav.CaldavFacade;
-import org.gege.caldavsyncadapter.caldav.CaldavFacade.TestConnectionResult;
-import org.xml.sax.SAXException;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.animation.Animator;
@@ -52,6 +46,12 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.apache.http.conn.HttpHostConnectException;
+import org.gege.caldavsyncadapter.Constants;
+import org.gege.caldavsyncadapter.caldav.CaldavFacade;
+import org.gege.caldavsyncadapter.caldav.CaldavFacade.TestConnectionResult;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -164,7 +164,7 @@ public class AuthenticatorActivity extends Activity {
                 .setOnEditorActionListener(new TextView.OnEditorActionListener() {
                     @Override
                     public boolean onEditorAction(TextView textView, int id,
-                            KeyEvent keyEvent) {
+                                                  KeyEvent keyEvent) {
                         if (id == R.id.login || id == EditorInfo.IME_NULL) {
                             attemptLogin();
                             return true;
@@ -187,7 +187,7 @@ public class AuthenticatorActivity extends Activity {
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count,
-                    int after) {
+                                          int after) {
             }
 
             @Override
@@ -214,19 +214,19 @@ public class AuthenticatorActivity extends Activity {
             public void afterTextChanged(Editable s) {
             }
         });
-       mAccountnameText.setDrawableClickListener(new DrawableClickListener() {
-           @Override
-           public void onClick(DrawablePosition target) {
-               switch (target) {
-                   case RIGHT:
-                       if (TextUtils.isEmpty(mAccountnameText.getText().toString())) {
-                           mAccountnameText.setText(AccountUtility.getGoogleMail());
-                       } else {
-                           mAccountnameText.setText("");
-                       }
-               }
-           }
-       });
+        mAccountnameText.setDrawableClickListener(new DrawableClickListener() {
+            @Override
+            public void onClick(DrawablePosition target) {
+                switch (target) {
+                    case RIGHT:
+                        if (TextUtils.isEmpty(mAccountnameText.getText().toString())) {
+                            mAccountnameText.setText(AccountUtility.getGoogleMail());
+                        } else {
+                            mAccountnameText.setText("");
+                        }
+                }
+            }
+        });
 
         mUpdateIntervalView = (IconfiedEditText) findViewById(R.id.updateinterval);
         mUpdateIntervalView.addClearButton();
@@ -483,7 +483,7 @@ public class AuthenticatorActivity extends Activity {
                             mAccountManager.setUserData(account, Constants.USER_DATA_TRUST_ALL_KEY,
                                     mTrustAll);
                             ContentResolver.setSyncAutomatically(account, "com.android.calendar", true);
-                			ContentResolver.addPeriodicSync(account, "com.android.calendar", new Bundle(), updateFrequency);
+                            ContentResolver.addPeriodicSync(account, "com.android.calendar", new Bundle(), updateFrequency);
                         } else {
                             Log.v(TAG, "no new account created");
                             Result = LoginResult.Account_Already_In_Use;

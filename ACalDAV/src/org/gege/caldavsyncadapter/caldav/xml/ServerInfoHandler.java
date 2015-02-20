@@ -51,7 +51,7 @@ public class ServerInfoHandler extends DefaultHandler {
 
     @Override
     public void startElement(String uri, String localName, String qName,
-            Attributes attributes) throws SAXException {
+                             Attributes attributes) throws SAXException {
         if (TAGS.contains(localName)) {
             inParentElement = localName;
         }

@@ -21,6 +21,11 @@
 
 package org.gege.caldavsyncadapter.caldav;
 
+import android.accounts.Account;
+import android.content.ContentProviderClient;
+import android.content.Context;
+import android.util.Log;
+
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -73,11 +78,6 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-
-import android.accounts.Account;
-import android.content.ContentProviderClient;
-import android.content.Context;
-import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
