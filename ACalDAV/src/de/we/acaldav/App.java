@@ -1,4 +1,4 @@
-package de.jdevel.acaldav;
+package de.we.acaldav;
 
 import android.app.Application;
 import android.content.Context;

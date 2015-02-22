@@ -25,7 +25,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-import de.jdevel.acaldav.App;
+import de.we.acaldav.App;
 
 public class SyncService extends Service {
 

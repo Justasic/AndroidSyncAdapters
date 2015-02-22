@@ -61,11 +61,11 @@ import java.util.Locale;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import de.jdevel.acaldav.App;
-import de.jdevel.acaldav.R;
-import de.jdevel.acaldav.utilities.AccountUtility;
-import de.jdevel.acaldav.widget.DrawableClickListener;
-import de.jdevel.acaldav.widget.IconfiedEditText;
+import de.we.acaldav.App;
+import de.we.acaldav.R;
+import de.we.acaldav.utilities.AccountUtility;
+import de.we.acaldav.widget.DrawableClickListener;
+import de.we.acaldav.widget.IconfiedEditText;
 
 /**
  * Activity which displays a login screen to the user, offering registration as

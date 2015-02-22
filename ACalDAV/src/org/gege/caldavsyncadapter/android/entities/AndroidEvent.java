@@ -72,7 +72,7 @@ import org.gege.caldavsyncadapter.caldav.entities.CalendarEvent;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 
-import de.jdevel.acaldav.App;
+import de.we.acaldav.App;
 
 //import android.accounts.Account;
 //import android.content.ContentProviderClient;
