@@ -323,7 +323,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     }
                 }
                 if (androidEvent != null)
-                //if (androidEvent.tagAndroidEvent())
                 {
                     if (androidCalendar.tagAndroidEvent(androidEvent)) {
                         rowTag += 1;
@@ -349,12 +348,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         rowDelete = androidCalendar.deleteUntaggedEvents();
         rowUntag = androidCalendar.untagAndroidEvents();
 
-		/*Log.i(TAG,"Statistiks for Calendar: " + serverCalendar.getURI().toString());
-		Log.i(TAG,"Statistiks for AndroidCalendar: " + androidCalendar.getAndroidCalendarUri().toString());
-		Log.i(TAG,"Rows inserted: " + String.valueOf(rowInsert));
-		Log.i(TAG,"Rows updated:  " + String.valueOf(rowUpdate));
-		Log.i(TAG,"Rows deleted:  " + String.valueOf(rowDelete));
-		Log.i(TAG,"Rows skipped:  " + String.valueOf(rowSkip));*/
         Log.i(TAG, "Rows tagged:   " + String.valueOf(rowTag));
         Log.i(TAG, "Rows untagged: " + String.valueOf(rowUntag));
 

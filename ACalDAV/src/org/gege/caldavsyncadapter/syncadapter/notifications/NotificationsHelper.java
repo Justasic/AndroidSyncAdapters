@@ -4,7 +4,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.support.v4.app.NotificationCompat;
 
-import de.jdevel.acaldav.R;
+import de.we.acaldav.R;
 
 //import android.app.PendingIntent;
 //import android.content.Intent;
