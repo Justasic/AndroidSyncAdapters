@@ -1,9 +1,9 @@
-package de.jdevel.acaldav.utilities;
+package de.we.acaldav.utilities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
 
-import de.jdevel.acaldav.App;
+import de.we.acaldav.App;
 
 /**
  * @author Joseph Weigl

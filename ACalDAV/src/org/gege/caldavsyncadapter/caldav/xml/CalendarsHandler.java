@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.jdevel.acaldav.BuildConfig;
+import de.we.acaldav.BuildConfig;
 
 public class CalendarsHandler extends DefaultHandler {
 

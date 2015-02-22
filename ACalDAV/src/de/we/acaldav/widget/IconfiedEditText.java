@@ -1,4 +1,4 @@
-package de.jdevel.acaldav.widget;
+package de.we.acaldav.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;

@@ -32,7 +32,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.jdevel.acaldav.BuildConfig;
+import de.we.acaldav.BuildConfig;
 
 public class CalendarHomeHandler extends DefaultHandler {
 

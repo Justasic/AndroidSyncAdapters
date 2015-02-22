@@ -85,7 +85,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import de.jdevel.acaldav.App;
+import de.we.acaldav.App;
 
 
 public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
@@ -960,6 +960,10 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
 
             Uri uri = this.mProvider.insert(asSyncAdapter(Events.CONTENT_URI, this.mAccount.name,
                     this.mAccount.type), this.ContentValues);
+
+            if(uri ==null){
+                throw new ParserException((int)this.getAndroidCalendarId());
+            }
             this.setAndroidEventUri(uri);
 
             Log.d(TAG, "Creating calendar event for " + uri.toString());
