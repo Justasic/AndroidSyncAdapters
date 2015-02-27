@@ -961,8 +961,8 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
             Uri uri = this.mProvider.insert(asSyncAdapter(Events.CONTENT_URI, this.mAccount.name,
                     this.mAccount.type), this.ContentValues);
 
-            if(uri ==null){
-                throw new ParserException((int)this.getAndroidCalendarId());
+            if (uri == null) {
+                throw new ParserException((int) this.getAndroidCalendarId());
             }
             this.setAndroidEventUri(uri);
 
