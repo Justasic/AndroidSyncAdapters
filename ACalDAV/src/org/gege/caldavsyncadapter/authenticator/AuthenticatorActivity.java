@@ -278,11 +278,14 @@ public class AuthenticatorActivity extends Activity {
         mURL = mURLText.getText().toString();
         mAccountname = mAccountnameText.getText().toString();
         mUpdateInterval = mUpdateIntervalView.getText().toString();
+
         if (mTrustCheckBox.isChecked()) {
             mTrustAll = "false";
         } else {
-            mTrustAll = "false";
+            mTrustAll = "true";
         }
+
+
         boolean cancel = false;
         View focusView = null;
 
