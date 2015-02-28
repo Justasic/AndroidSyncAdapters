@@ -180,9 +180,12 @@ public class AuthenticatorActivity extends Activity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String url = ((EditText) findViewById(R.id.url)).getText().toString();
-                int visible = url.toLowerCase(Locale.getDefault())
-                        .startsWith("https") ? View.VISIBLE : View.GONE;
-                (findViewById(R.id.trustall)).setVisibility(visible);
+                if (url.toLowerCase(Locale.getDefault())
+                        .startsWith("https")) {
+                    (findViewById(R.id.trustall)).setVisibility(View.VISIBLE);
+                } else {
+                    (findViewById(R.id.trustall)).setVisibility(View.GONE);
+                }
             }
 
             @Override
@@ -275,7 +278,11 @@ public class AuthenticatorActivity extends Activity {
         mURL = mURLText.getText().toString();
         mAccountname = mAccountnameText.getText().toString();
         mUpdateInterval = mUpdateIntervalView.getText().toString();
-        mTrustAll = (mTrustCheckBox.isChecked() ? "false" : "true");
+        if (mTrustCheckBox.isChecked()) {
+            mTrustAll = "false";
+        } else {
+            mTrustAll = "false";
+        }
         boolean cancel = false;
         View focusView = null;
 
@@ -303,24 +310,17 @@ public class AuthenticatorActivity extends Activity {
             focusView = mUserView;
             cancel = true;
         }
-        //else if (!mUser.contains("@")) {
-        //	mUserView.setError(getString(R.string.error_invalid_email));
-        //	focusView = mUserView;
-        //	cancel = true;
-        //}
+
 
         if (TextUtils.isEmpty(mUpdateInterval)) {
-            mUpdateIntervalView.setError(getString(R.string.error_field_required));
+            mUpdateInterval = "30";
+        }
+        try {
+            Integer.parseInt(mUpdateInterval);
+        } catch (Exception e) {
+            mUpdateIntervalView.setError(getString(R.string.error_invalid_number));
             focusView = mUpdateIntervalView;
             cancel = true;
-        } else {
-            try {
-                Integer.parseInt(mUpdateInterval);
-            } catch (Exception e) {
-                mUpdateIntervalView.setError(getString(R.string.error_invalid_number));
-                focusView = mUpdateIntervalView;
-                cancel = true;
-            }
         }
 
         if (cancel) {

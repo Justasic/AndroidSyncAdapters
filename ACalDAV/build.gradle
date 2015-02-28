@@ -4,8 +4,8 @@ apply plugin: 'com.android.application'
 apply from: '../config/quality/quality.gradle'
 
 android {
-    compileSdkVersion 20
-    buildToolsVersion '20'
+    compileSdkVersion 19
+    buildToolsVersion '19.1.0'
 
     sourceSets {
         main {

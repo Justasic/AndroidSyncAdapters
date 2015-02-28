@@ -46,7 +46,7 @@
         <activity
             android:name="org.gege.caldavsyncadapter.authenticator.AuthenticatorActivity"
             android:label="@string/title_activity_authenticator"
-            android:windowSoftInputMode="adjustResize|stateVisible"></activity>
+            android:windowSoftInputMode="adjustResize|stateVisible"/>
     </application>
 
 </manifest>
