@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.we.acaldav"
-    android:versionCode="002"
-          android:versionName="0.0.2">
+    android:versionCode="004"
+          android:versionName="0.0.4">
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -46,7 +46,7 @@
         <activity
             android:name="org.gege.caldavsyncadapter.authenticator.AuthenticatorActivity"
             android:label="@string/title_activity_authenticator"
-            android:windowSoftInputMode="adjustResize|stateVisible"></activity>
+            android:windowSoftInputMode="adjustResize|stateVisible"/>
     </application>
 
 </manifest>
