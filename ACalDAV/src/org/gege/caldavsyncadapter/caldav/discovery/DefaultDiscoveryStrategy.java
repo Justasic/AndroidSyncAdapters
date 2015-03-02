@@ -94,6 +94,7 @@ public class DefaultDiscoveryStrategy implements DiscoveryStrategy {
         request.setURI(uri);
         injectDefaultHeaders(request, depth, targetHost);
         request.removeHeaders("Depth");
+        request.setHeader("Content-Type", "text/calendar; charset=utf-8");
         try {
             request.setEntity(new StringEntity(data, "UTF-8"));
         } catch (UnsupportedEncodingException e) {

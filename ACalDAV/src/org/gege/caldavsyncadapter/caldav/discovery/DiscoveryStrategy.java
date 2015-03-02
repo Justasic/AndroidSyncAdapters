@@ -28,32 +28,64 @@ import org.apache.http.client.methods.HttpPut;
 import org.gege.caldavsyncadapter.caldav.http.HttpPropFind;
 import org.gege.caldavsyncadapter.caldav.http.HttpReport;
 
+/**
+ * This interface deals with the preparation of requests.
+ * Some hosts/server implementations have their peculiarities
+ * that an implementation can challenge.
+ */
 public interface DiscoveryStrategy {
 
 	/**
+     * method is used to determine a matching strategy implementation
+     *
+     * An implementation shall only return true, if it supports host specific
+     * features.
+     *
 	 * @param targetHost the host
 	 * @return true if this strategy instance supports the given host
 	 */
 	boolean supportsTargetHost(HttpHost targetHost);
-	
-	/**
-	 * create a strategy specific version of a PROPFIND request
-	 */
+
+    /**
+     * create a strategy specific version of a PROPFIND request
+     *
+     * @param uri the target uri
+     * @param data the data payload
+     * @param depth the "Depth" header value
+     * @param targetHost the target host, used for "Host" header
+     * @return the prepared request
+     */
 	HttpPropFind createPropFindRequest(URI uri, String data, int depth, HttpHost targetHost);
 
 	/**
 	 * create a strategy specific version of a Report request
+     *
+     * @param uri the target uri
+     * @param data the data payload
+     * @param depth the "Depth" header value
+     * @param targetHost the target host, used for "Host" header
+     * @return the prepared request
 	 */
 	HttpReport createReportRequest(URI uri, String data, int depth,
 			HttpHost targetHost);
 
 	/**
-	 * create a strategy specific version of a DELTE request
+	 * create a strategy specific version of a DELETE request
+     *
+     * @param uri the target uri
+     * @param targetHost the target host, used for "Host" header
+     * @return the prepared request
 	 */
 	HttpDelete createDeleteRequest(URI uri, HttpHost targetHost);
 
 	/**
 	 * create a strategy specific version of a PUT request
+     *
+     * @param uri the target uri
+     * @param data the data payload
+     * @param depth the "Depth" header value
+     * @param targetHost the target host, used for "Host" header
+     * @return the prepared request
 	 */
 	HttpPut createPutRequest(URI uri, String data, int depth,
 			HttpHost targetHost);
