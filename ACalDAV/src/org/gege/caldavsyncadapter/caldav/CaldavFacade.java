@@ -60,6 +60,9 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.gege.caldavsyncadapter.caldav.discovery.DefaultDiscoveryStrategy;
+import org.gege.caldavsyncadapter.caldav.discovery.DiscoveryStrategy;
+import org.gege.caldavsyncadapter.caldav.discovery.GoogleDiscoveryStrategy;
 import org.gege.caldavsyncadapter.caldav.entities.CalendarEvent;
 import org.gege.caldavsyncadapter.caldav.entities.CalendarList;
 import org.gege.caldavsyncadapter.caldav.entities.DavCalendar;
@@ -90,6 +93,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.SSLException;
@@ -201,6 +205,12 @@ public class CaldavFacade {
 
     private ContentProviderClient mProvider;
 
+	private static DiscoveryStrategy discoveryStrategy;
+    
+    private static List<DiscoveryStrategy> discoveryStrategies = Arrays.asList(
+    		new DiscoveryStrategy[] {new GoogleDiscoveryStrategy()});
+    private static DiscoveryStrategy defaultDiscoveryStrategy = new DefaultDiscoveryStrategy();
+
     public CaldavFacade(String mUser, String mPassword, String mURL, String trustAll)
             throws MalformedURLException {
         url = new URL(mURL);
@@ -243,23 +253,21 @@ public class CaldavFacade {
             }
         }
         targetHost = new HttpHost(url.getHost(), port, proto);
+
+        discoveryStrategy = resolveDiscoveryStrategy();
     }
 
-    private static HttpReport createReportRequest(URI uri, String data, int depth) {
-        HttpReport request = new HttpReport();
-        request.setURI(uri);
-        //request.setHeader("Host", targetHost.getHostName());
-        request.setHeader("Host",
-                targetHost.getHostName() + ":" + String.valueOf(targetHost.getPort()));
-        request.setHeader("Depth", Integer.toString(depth));
-        request.setHeader("Content-Type", "application/xml;charset=\"UTF-8\"");
-        //request.setHeader("Content-Type", "text/xml;charset=\"UTF-8\"");
-        try {
-            request.setEntity(new StringEntity(data));
-        } catch (UnsupportedEncodingException e) {
-            throw new AssertionError("UTF-8 is unknown");
-        }
-        return request;
+    private DiscoveryStrategy resolveDiscoveryStrategy() {
+    	for (DiscoveryStrategy ds : discoveryStrategies) {
+			if (ds.supportsTargetHost(targetHost)) {
+				return ds;
+			}
+		}
+    	return defaultDiscoveryStrategy;
+	}
+
+	private static HttpReport createReportRequest(URI uri, String data, int depth) {
+		return discoveryStrategy.createReportRequest(uri, data, depth, targetHost);
     }
 
     public static void fetchEvent_old(CalendarEvent calendarEvent)
@@ -686,47 +694,15 @@ public class CaldavFacade {
     }
 
     private HttpPropFind createPropFindRequest(URI uri, String data, int depth) {
-        HttpPropFind request = new HttpPropFind();
-
-        request.setURI(uri);
-        //request.setHeader("Host", targetHost.getHostName());
-        request.setHeader("Host",
-                targetHost.getHostName() + ":" + String.valueOf(targetHost.getPort()));
-        request.setHeader("Depth", Integer.toString(depth));
-        request.setHeader("Content-Type", "application/xml;charset=\"UTF-8\"");
-        try {
-            request.setEntity(new StringEntity(data, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new AssertionError("UTF-8 is unknown");
-        }
-        return request;
+        return discoveryStrategy.createPropFindRequest(uri, data, depth, targetHost);
     }
 
     private HttpDelete createDeleteRequest(URI uri) {
-        HttpDelete request = new HttpDelete();
-        request.setURI(uri);
-        //request.setHeader("Host", targetHost.getHostName());
-        request.setHeader("Host",
-                targetHost.getHostName() + ":" + String.valueOf(targetHost.getPort()));
-        request.setHeader("Content-Type", "application/xml;charset=\"UTF-8\"");
-        return request;
+        return discoveryStrategy.createDeleteRequest(uri, targetHost);
     }
 
     private HttpPut createPutRequest(URI uri, String data, int depth) {
-        HttpPut request = new HttpPut();
-        request.setURI(uri);
-        //request.setHeader("Host", targetHost.getHostName());
-        request.setHeader("Host",
-                targetHost.getHostName() + ":" + String.valueOf(targetHost.getPort()));
-        //request.setHeader("Content-Type", "application/xml;charset=\"UTF-8\"");
-        request.setHeader("Content-Type", "text/calendar; charset=UTF-8");
-        try {
-            request.setEntity(new StringEntity(data, "UTF-8"));
-            //request.setEntity(new StringEntity(data));
-        } catch (UnsupportedEncodingException e) {
-            throw new AssertionError("UTF-8 is unknown");
-        }
-        return request;
+    	return discoveryStrategy.createPutRequest(uri, data, depth, targetHost);
     }
 
     /**
