@@ -125,12 +125,7 @@ public class CaldavFacade {
     private final static String PROPFIND_CALENDER_LIST = XML_VERSION
             + "<d:propfind xmlns:d=\"DAV:\" xmlns:c=\"urn:ietf:params:xml:ns:caldav\" xmlns:cs=\"http://calendarserver.org/ns/\" xmlns:ic=\"http://apple.com/ns/ical/\">"
             + "<d:prop><d:displayname /><d:resourcetype />"
-            // +
-            // "<d:supported-method-set /><d:supported-report-set /><c:supported-calendar-component-set />"
-            // +
-            // "<c:calendar-description /><c:calendar-timezone /><c:calendar-free-busy-set />
             + "<ic:calendar-color />"
-            //<ic:calendar-order />"
             + "<cs:getctag /></d:prop></d:propfind>";
 
     private static HttpClient httpClient;
@@ -309,7 +304,6 @@ public class CaldavFacade {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-        //request = createReportRequest(calendarEvent.getUri(), data, 1);
         request = createReportRequest(calendarURI, data, 1);
 
         HttpResponse response = httpClient.execute(targetHost, request);
@@ -397,21 +391,18 @@ public class CaldavFacade {
             if (context != null) {
                 NotificationsHelper
                         .signalSyncErrors(context, "Caldav sync problem", e.getMessage());
-                //NotificationsHelper.getCurrentSyncLog().addException(e);
             }
             exception = e;
         } catch (FileNotFoundException e) {
             if (context != null) {
                 NotificationsHelper
                         .signalSyncErrors(context, "Caldav sync problem", e.getMessage());
-                //NotificationsHelper.getCurrentSyncLog().addException(e);
             }
             throw e;
         } catch (IOException e) {
             if (context != null) {
                 NotificationsHelper
                         .signalSyncErrors(context, "Caldav sync problem", e.getMessage());
-                //NotificationsHelper.getCurrentSyncLog().addException(e);
             }
             exception = e;
         } catch (CaldavProtocolException e) {
@@ -419,7 +410,6 @@ public class CaldavFacade {
             if (context != null) {
                 NotificationsHelper
                         .signalSyncErrors(context, "Caldav sync problem", e.getMessage());
-                //NotificationsHelper.getCurrentSyncLog().addException(e);
             }
             exception = e;
         }
@@ -519,7 +509,6 @@ public class CaldavFacade {
      * @throws URISyntaxException      url in Constructor malformed
      * @throws CaldavProtocolException caldav protocol error
      */
-    //public Iterable<Calendar> getCalendarList(Context context) throws ClientProtocolException,
     public CalendarList getCalendarList(Context context) throws ClientProtocolException,
             IOException, URISyntaxException, ParserConfigurationException,
             CaldavProtocolException {
@@ -528,9 +517,7 @@ public class CaldavFacade {
                     CalendarSource.CalDAV, this.url
                     .toString()
             );
-            List<DavCalendar> calendars = new ArrayList<DavCalendar>();
-
-            calendars = forceGetCalendarsFromUri(context, this.url.toURI());
+            List<DavCalendar> calendars = forceGetCalendarsFromUri(context, this.url.toURI());
 
             if (calendars.size() == 0) {
                 // no calendars found, try the home-set
@@ -552,7 +539,6 @@ public class CaldavFacade {
         }
     }
 
-    //public Iterable<CalendarEvent> getCalendarEvents(DavCalendar calendar)
     public ArrayList<CalendarEvent> getCalendarEvents(DavCalendar calendar)
             throws URISyntaxException, ClientProtocolException, IOException,
             ParserConfigurationException, SAXException {
@@ -567,17 +553,6 @@ public class CaldavFacade {
 
         String EventUri;
 
-		/*request = new HttpPropFind();
-        request.setURI(calendar.getURI());
-		request.setHeader("Host", targetHost.getHostName());
-		request.setHeader("Depth", "1");
-		request.setHeader("Content-Type", "application/xml;charset=\"UTF-8\"");
-
-		try {
-			request.setEntity(new StringEntity(requestBody, "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError("UTF-8 is unknown");
-		}*/
         request = this.createPropFindRequest(calendar.getURI(), requestBody, 1);
 
         Log.d(TAG, "Getting eTag by PROPFIND at " + request.getURI());
@@ -606,7 +581,6 @@ public class CaldavFacade {
             }
 
             calendarEvent.setETag(node.getTextContent().trim());
-            //calendarEvent.calendarURL = this.url;
             calendarEvent.calendarURL = calendar.getURI().toURL();
 
             node = node.getParentNode(); // prop
@@ -635,14 +609,6 @@ public class CaldavFacade {
     private void parseXML(HttpResponse response, ContentHandler contentHandler)
             throws IOException, CaldavProtocolException {
         InputStream is = response.getEntity().getContent();
-        /*BufferedReader bReader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-        String Content = "";
-		String Line = bReader.readLine();
-
-		while (Line != null) {
-			Content += Line;
-			Line = bReader.readLine();
-		}*/
 
         SAXParserFactory factory = SAXParserFactory.newInstance();
         try {
@@ -715,7 +681,7 @@ public class CaldavFacade {
      *             only to update this version
      */
     public boolean updateEvent(URI uri, String data, String ETag) {
-        boolean Result = false;
+        boolean lcResult = false;
 
         try {
             HttpPut request = createPutRequest(uri, data, 1);
@@ -723,24 +689,24 @@ public class CaldavFacade {
             HttpResponse response = httpClient.execute(targetHost, request, mContext);
             checkStatus(response);
             if ((lastStatusCode == 200) || (lastStatusCode == 201) || (lastStatusCode == 204)) {
-                Result = true;
+                lcResult = true;
             } else if (lastStatusCode == 412) {
                 //Precondition failed
-                Result = false;
+                lcResult = false;
             } else if (lastStatusCode == 409) {
                 //Conflict
-                Result = false;
+                lcResult = false;
             } else {
                 Log.w(TAG, "Unkown StatusCode during creation of an event");
             }
         } catch (ClientProtocolException e) {
-            e.printStackTrace();
+            Log.e(getLastETag(),e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(getLastETag(), e.getMessage());
         } catch (AuthenticationException e) {
-            e.printStackTrace();
+            Log.e(getLastETag(), e.getMessage());
         }
-        return Result;
+        return lcResult;
     }
 
     /**
@@ -751,7 +717,7 @@ public class CaldavFacade {
      * @return success of this function
      */
     public boolean createEvent(URI uri, String data) {
-        boolean Result = false;
+        boolean lcResult = false;
 
         try {
             HttpPut request = createPutRequest(uri, data, 1);
@@ -759,18 +725,18 @@ public class CaldavFacade {
             HttpResponse response = httpClient.execute(targetHost, request, mContext);
             checkStatus(response);
             if (lastStatusCode == 201) {
-                Result = true;
+                lcResult = true;
             } else {
                 Log.w(TAG, "Unkown StatusCode during creation of an event");
             }
         } catch (ClientProtocolException e) {
-            e.printStackTrace();
+            Log.e(getLastETag(), e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(getLastETag(), e.getMessage());
         } catch (AuthenticationException e) {
-            e.printStackTrace();
+            Log.e(getLastETag(), e.getMessage());
         }
-        return Result;
+        return lcResult;
     }
 
     /**
@@ -783,7 +749,7 @@ public class CaldavFacade {
      * @return success of this function
      */
     public boolean deleteEvent(URI calendarEventUri, String ETag) {
-        boolean Result = false;
+        boolean lcResult = false;
 
         try {
             HttpDelete request = createDeleteRequest(calendarEventUri);
@@ -791,24 +757,24 @@ public class CaldavFacade {
             HttpResponse response = httpClient.execute(targetHost, request, mContext);
             checkStatus(response);
             if ((lastStatusCode == 204) || (lastStatusCode == 200)) {
-                Result = true;
+                lcResult = true;
             } else {
                 Log.w(TAG, "Unkown StatusCode during deletion of an event");
             }
         } catch (ClientProtocolException e) {
-            e.printStackTrace();
+            Log.e(getLastETag(),e.getMessage());
         } catch (IOException e) {
             if (lastStatusCode == 404) {
                 //the event has already been deleted on server side. no action needed
-                Result = true;
+                lcResult = true;
             } else {
-                e.printStackTrace();
+                Log.e(getLastETag(),e.getMessage());
             }
         } catch (AuthenticationException e) {
-            e.printStackTrace();
+            Log.e(getLastETag(),e.getMessage());
         }
 
-        return Result;
+        return lcResult;
     }
 
     /**

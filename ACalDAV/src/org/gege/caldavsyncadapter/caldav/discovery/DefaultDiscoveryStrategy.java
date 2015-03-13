@@ -68,13 +68,10 @@ public class DefaultDiscoveryStrategy implements DiscoveryStrategy {
 	}
 	
 	private void injectDefaultHeaders(HttpUriRequest request, int depth, HttpHost targetHost) {
-        
-        //request.setHeader("Host", targetHost.getHostName());
         request.setHeader("Host",
                 targetHost.getHostName() + ":" + String.valueOf(targetHost.getPort()));
         request.setHeader("Depth", Integer.toString(depth));
         request.setHeader("Content-Type", "application/xml;charset=\"UTF-8\"");
-        //request.setHeader("Content-Type", "text/xml;charset=\"UTF-8\"");
 
 	}
 

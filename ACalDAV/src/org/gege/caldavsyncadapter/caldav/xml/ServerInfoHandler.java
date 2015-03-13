@@ -70,7 +70,6 @@ public class ServerInfoHandler extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName)
             throws SAXException {
-        //if (TAGS.contains(inParentElement)) {
         if (HREF.equals(currentElement) && TAGS.contains(inParentElement)) {
             if (CURRENT_USER_PRINCIPAL.equals(inParentElement)) {
                 currentUserPrincipal = stringBuilder.toString();
@@ -80,7 +79,6 @@ public class ServerInfoHandler extends DefaultHandler {
         }
         if (TAGS.contains(localName)) {
             inParentElement = null;
-            //stringBuilder.setLength(0);
         }
         currentElement = null;
 

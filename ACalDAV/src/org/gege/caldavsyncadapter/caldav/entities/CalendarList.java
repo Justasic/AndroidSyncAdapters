@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.CalendarContract.Calendars;
+import android.util.Log;
 
 import org.gege.caldavsyncadapter.caldav.entities.DavCalendar.CalendarSource;
 import org.gege.caldavsyncadapter.syncadapter.notifications.NotificationsHelper;
@@ -39,46 +40,35 @@ public class CalendarList {
         this.ServerUrl = serverUrl;
     }
 
-/*	public Calendar getCalendarByAndroidCalendarId(int calendarId) {
-        Calendar Result = null;
-		
-		for (Calendar Item : mList) {
-			if (Item.getAndroidCalendarId() == calendarId)
-				Result = Item;
-		}
-		
-		return Result;
-	}*/
-
     public DavCalendar getCalendarByURI(URI calendarURI) {
-        DavCalendar Result = null;
+        DavCalendar lcResult = null;
 
         for (DavCalendar Item : mList) {
             if (Item.getURI().equals(calendarURI)) {
-                Result = Item;
+                lcResult = Item;
             }
         }
 
-        return Result;
+        return lcResult;
     }
 
     public DavCalendar getCalendarByAndroidUri(Uri androidCalendarUri) {
-        DavCalendar Result = null;
+        DavCalendar lcResult = null;
 
-        for (DavCalendar Item : mList) {
-            if (Item.getAndroidCalendarUri().equals(androidCalendarUri)) {
-                Result = Item;
+        for (DavCalendar lcDavCalendars : mList) {
+            if (lcDavCalendars.getAndroidCalendarUri().equals(androidCalendarUri)) {
+                lcResult = lcDavCalendars;
             }
         }
 
-        return Result;
+        return lcResult;
     }
 
     /**
      * function to get all calendars from client side android
      */
     public boolean readCalendarFromClient() {
-        boolean Result = false;
+        boolean lcResult = false;
         Cursor cur = null;
 
         Uri uri = Calendars.CONTENT_URI;
@@ -108,21 +98,21 @@ public class CalendarList {
         try {
             cur = mProvider.query(uri, null, selection, selectionArgs, Calendars._ID + " ASC");
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(this.getClass().getCanonicalName(), e.getMessage());
         }
         if (cur != null) {
             while (cur.moveToNext()) {
                 mList.add(new DavCalendar(mAccount, mProvider, cur, this.Source, this.ServerUrl));
             }
             cur.close();
-            Result = true;
+            lcResult = true;
         }
 
-        return Result;
+        return lcResult;
     }
 
     public boolean deleteCalendarOnClientSideOnly(android.content.Context context) {
-        boolean Result = false;
+        boolean lcResult = false;
 
         for (DavCalendar androidCalendar : this.mList) {
             if (!androidCalendar.foundServerSide) {
@@ -133,7 +123,7 @@ public class CalendarList {
             }
         }
 
-        return Result;
+        return lcResult;
     }
 
     public void addCalendar(DavCalendar item) {
@@ -143,7 +133,7 @@ public class CalendarList {
         this.mList.add(item);
     }
 
-    public java.util.ArrayList<DavCalendar> getCalendarList() {
+    public ArrayList<DavCalendar> getCalendarList() {
         return this.mList;
     }
 
@@ -156,12 +146,12 @@ public class CalendarList {
     }
 
     public ArrayList<Uri> getNotifyList() {
-        ArrayList<Uri> Result = new ArrayList<Uri>();
+        ArrayList<Uri> lcResult = new ArrayList<Uri>();
 
         for (DavCalendar cal : this.mList) {
-            Result.addAll(cal.getNotifyList());
+            lcResult.addAll(cal.getNotifyList());
         }
 
-        return Result;
+        return lcResult;
     }
 }

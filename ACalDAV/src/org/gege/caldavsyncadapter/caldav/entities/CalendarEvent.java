@@ -25,7 +25,6 @@ import android.accounts.Account;
 import android.content.ContentProviderClient;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.SyncStats;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
@@ -67,7 +66,6 @@ import org.gege.caldavsyncadapter.caldav.xml.sax.MultiStatus;
 import org.gege.caldavsyncadapter.caldav.xml.sax.Prop;
 import org.gege.caldavsyncadapter.caldav.xml.sax.PropStat;
 import org.gege.caldavsyncadapter.caldav.xml.sax.Response;
-import org.gege.caldavsyncadapter.syncadapter.SyncAdapter;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -173,7 +171,7 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
 
             multistatus = contentHandler.mMultiStatus;
             if (multistatus != null) {
-                responselist = multistatus.ResponseList;
+                responselist = multistatus.responseList;
                 if (responselist.size() == 1) {
                     response = responselist.get(0);
                     //HINT: bugfix for google calendar, zimbra replace("@", "%40")
@@ -210,48 +208,24 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
         return mAndroidEventUri;
     }
 
-    /**
-     * sets the Uri of the android event
-     *
-     * @see org.gege.caldavsyncadapter.syncadapter.SyncAdapter#createAndroidEvent(ContentProviderClient
-     * provider, Account account, Uri calendarUri, CalendarEvent calendarEvent)
-     * @see org.gege.caldavsyncadapter.syncadapter.SyncAdapter#updateAndroidEvent(ContentProviderClient
-     * provider, Account account, AndroidEvent androidEvent, CalendarEvent calendarEvent)
-     */
     public void setAndroidEventUri(Uri uri) {
         mAndroidEventUri = uri;
     }
 
-    /**
-     * reads all ContentValues from the caldav source
-     *
-     * @see org.gege.caldavsyncadapter.syncadapter.SyncAdapter#createAndroidEvent(ContentProviderClient
-     * provider, Account account, Uri calendarUri, CalendarEvent calendarEvent)
-     * @see org.gege.caldavsyncadapter.syncadapter.SyncAdapter#updateAndroidEvent(ContentProviderClient
-     * provider, Account account, AndroidEvent androidEvent, CalendarEvent calendarEvent)
-     */
     public boolean readContentValues() {
         this.ContentValues.put(Events.DTSTART, this.getStartTime());
         this.ContentValues.put(Events.EVENT_TIMEZONE, this.getTimeZoneStart());
 
-        //if (this.getRRule().isEmpty() && this.getRDate().isEmpty()) {
         if (this.getRRule() == null && this.getRDate() == null) {
-            //if (AllDay.equals(1)) //{
-            //	values.put(Events.ALL_DAY, AllDay);
-            //} else {
             this.ContentValues.put(Events.DTEND, this.getEndTime());
             this.ContentValues.put(Events.EVENT_END_TIMEZONE, this.getTimeZoneEnd());
-            //}
         } else {
-            //if (AllDay.equals(1))
-            //	values.put(Events.ALL_DAY, AllDay);
             this.ContentValues.put(Events.DURATION, this.getDuration());
         }
         int AllDay = this.getAllDay();
         this.ContentValues.put(Events.ALL_DAY, AllDay);
 
         this.ContentValues.put(Events.TITLE, this.getTitle());
-        //this.ContentValues.put(Events.CALENDAR_ID, ContentUris.parseId(calendarUri));
         this.ContentValues.put(Events._SYNC_ID, this.getUri().toString());
         this.ContentValues.put(ETAG, this.getETag());
         this.ContentValues.put(Events.DESCRIPTION, this.getDescription());
@@ -278,8 +252,6 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
             throws ClientProtocolException, IOException, CaldavProtocolException, ParserException {
         boolean error = false;
 
-        //replaced fetchEvent() with getEvent()
-        //CaldavFacade.fetchEvent(this);
         CaldavFacade.getEvent(this);
 
         boolean parsed = this.parseIcs();
@@ -291,7 +263,7 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
     }
 
     public java.util.ArrayList<ContentValues> getReminders() {
-        java.util.ArrayList<ContentValues> Result = new java.util.ArrayList<ContentValues>();
+        java.util.ArrayList<ContentValues> lcResult = new java.util.ArrayList<ContentValues>();
         ContentValues Reminder;
 
 		/*
@@ -300,7 +272,6 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
 
         net.fortuna.ical4j.model.component.VEvent event = (VEvent) this.calendarComponent;
 
-        //ComponentList ComList = this.calendar.getComponents(Component.VALARM);
         ComponentList ComList = event.getAlarms();
 
         if (ComList != null) {
@@ -308,11 +279,9 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
                 Component Com = (Component) objCom;
                 Reminder = new ContentValues();
 
-                //Property ACTION = Com.getProperty("ACTION");
                 Property TRIGGER = Com.getProperty("TRIGGER");
                 if (TRIGGER != null) {
                     Dur Duration = new Dur(TRIGGER.getValue());
-                    //if (ACTION.getValue().equals("DISPLAY"))
 
                     int intDuration = Duration.getMinutes() + Duration.getHours() * 60
                             + Duration.getDays() * 60 * 24;
@@ -321,49 +290,48 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
                     Reminder.put(Reminders.METHOD, Reminders.METHOD_ALERT);
                     Reminder.put(Reminders.MINUTES, intDuration);
 
-                    Result.add(Reminder);
+                    lcResult.add(Reminder);
                 }
             }
         }
-        return Result;
+        return lcResult;
     }
 
     public java.util.ArrayList<ContentValues> getAttandees() {
-        java.util.ArrayList<ContentValues> Result = new java.util.ArrayList<ContentValues>();
+        java.util.ArrayList<ContentValues> lcResult = new java.util.ArrayList<ContentValues>();
         ContentValues Attendee;
-        PropertyList Propertys = calendarComponent.getProperties(Property.ATTENDEE);
-        if (Propertys != null) {
-            for (Object objProperty : Propertys) {
+        PropertyList lcPropertys = calendarComponent.getProperties(Property.ATTENDEE);
+        if (lcPropertys != null) {
+            for (Object objProperty : lcPropertys) {
                 Property property = (Property) objProperty;
                 Attendee = ReadAttendeeProperties(property, Property.ATTENDEE);
                 if (Attendee != null) {
-                    Result.add(Attendee);
+                    lcResult.add(Attendee);
                 }
             }
         }
-        Propertys = calendarComponent.getProperties(Property.ORGANIZER);
-        if (Propertys != null) {
-            for (Object objProperty : Propertys) {
+        lcPropertys = calendarComponent.getProperties(Property.ORGANIZER);
+        if (lcPropertys != null) {
+            for (Object objProperty : lcPropertys) {
                 Property property = (Property) objProperty;
                 Attendee = ReadAttendeeProperties(property, Property.ORGANIZER);
                 if (Attendee != null) {
-                    Result.add(Attendee);
+                    lcResult.add(Attendee);
                 }
             }
         }
 
-        return Result;
+        return lcResult;
     }
 
     private ContentValues ReadAttendeeProperties(Property property, String Type) {
-        ContentValues Attendee = null;
+        ContentValues lcAttendee = null;
 
-        ParameterList Parameters = property.getParameters();
-        Parameter CN = Parameters.getParameter(Cn.CN);
-        Parameter ROLE = Parameters.getParameter(Role.ROLE);
-        Parameter CUTYPE = Parameters.getParameter(CuType.CUTYPE);
-        //Parameter RSVP     = Parameters.getParameter("RSVP");
-        Parameter PARTSTAT = Parameters.getParameter(PartStat.PARTSTAT);
+        ParameterList lcParameters = property.getParameters();
+        Parameter lcCN = lcParameters.getParameter(Cn.CN);
+        Parameter lcROLE = lcParameters.getParameter(Role.ROLE);
+        Parameter lcCUTYPE = lcParameters.getParameter(CuType.CUTYPE);
+        Parameter lcPARTSTAT = lcParameters.getParameter(PartStat.PARTSTAT);
 
         String strCN = "";
         String strROLE = "";
@@ -376,21 +344,21 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
             try {
                 strValue = URLDecoder.decode(strValue, "UTF-8");
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                Log.e(getETag(), e.getMessage());
             }
         }
 
-        if (CN != null) {
-            strCN = CN.getValue();
+        if (lcCN != null) {
+            strCN = lcCN.getValue();
         }
-        if (ROLE != null) {
-            strROLE = ROLE.getValue();
+        if (lcROLE != null) {
+            strROLE = lcROLE.getValue();
         }
-        if (CUTYPE != null) {
-            strCUTYPE = CUTYPE.getValue();
+        if (lcCUTYPE != null) {
+            strCUTYPE = lcCUTYPE.getValue();
         }
-        if (PARTSTAT != null) {
-            strPARTSTAT = PARTSTAT.getValue();
+        if (lcPARTSTAT != null) {
+            strPARTSTAT = lcPARTSTAT.getValue();
         }
 
         if (strCN.equals("")) {
@@ -401,108 +369,108 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
 
         if (!strCN.equals("")) {
             if (strCUTYPE.equals("") || strCUTYPE.equals("INDIVIDUAL")) {
-                Attendee = new ContentValues();
+                lcAttendee = new ContentValues();
 
-                Attendee.put(Attendees.EVENT_ID, ContentUris.parseId(mAndroidEventUri));
+                lcAttendee.put(Attendees.EVENT_ID, ContentUris.parseId(mAndroidEventUri));
 
-                Attendee.put(Attendees.ATTENDEE_NAME, strCN);
-                Attendee.put(Attendees.ATTENDEE_EMAIL, strValue);
+                lcAttendee.put(Attendees.ATTENDEE_NAME, strCN);
+                lcAttendee.put(Attendees.ATTENDEE_EMAIL, strValue);
 
                 if (strROLE.equals("OPT-PARTICIPANT")) {
-                    Attendee.put(Attendees.ATTENDEE_TYPE, Attendees.TYPE_OPTIONAL);
+                    lcAttendee.put(Attendees.ATTENDEE_TYPE, Attendees.TYPE_OPTIONAL);
                 } else if (strROLE.equals("NON-PARTICIPANT")) {
-                    Attendee.put(Attendees.ATTENDEE_TYPE, Attendees.TYPE_NONE);
+                    lcAttendee.put(Attendees.ATTENDEE_TYPE, Attendees.TYPE_NONE);
                 } else if (strROLE.equals("REQ-PARTICIPANT")) {
-                    Attendee.put(Attendees.ATTENDEE_TYPE, Attendees.TYPE_REQUIRED);
+                    lcAttendee.put(Attendees.ATTENDEE_TYPE, Attendees.TYPE_REQUIRED);
                 } else if (strROLE.equals("CHAIR")) {
-                    Attendee.put(Attendees.ATTENDEE_TYPE, Attendees.TYPE_REQUIRED);
+                    lcAttendee.put(Attendees.ATTENDEE_TYPE, Attendees.TYPE_REQUIRED);
                 } else {
-                    Attendee.put(Attendees.ATTENDEE_TYPE, Attendees.TYPE_NONE);
+                    lcAttendee.put(Attendees.ATTENDEE_TYPE, Attendees.TYPE_NONE);
                 }
 
                 if (Type.equals(Property.ATTENDEE)) {
-                    Attendee.put(Attendees.ATTENDEE_RELATIONSHIP, Attendees.RELATIONSHIP_ATTENDEE);
+                    lcAttendee.put(Attendees.ATTENDEE_RELATIONSHIP, Attendees.RELATIONSHIP_ATTENDEE);
                 } else if (Type.equals(Property.ORGANIZER)) {
-                    Attendee.put(Attendees.ATTENDEE_RELATIONSHIP, Attendees.RELATIONSHIP_ORGANIZER);
+                    lcAttendee.put(Attendees.ATTENDEE_RELATIONSHIP, Attendees.RELATIONSHIP_ORGANIZER);
                 } else {
-                    Attendee.put(Attendees.ATTENDEE_RELATIONSHIP, Attendees.RELATIONSHIP_NONE);
+                    lcAttendee.put(Attendees.ATTENDEE_RELATIONSHIP, Attendees.RELATIONSHIP_NONE);
                 }
 
                 if (strPARTSTAT.equals(PartStat.NEEDS_ACTION.getValue())) {
-                    Attendee.put(Attendees.ATTENDEE_STATUS, Attendees.ATTENDEE_STATUS_INVITED);
+                    lcAttendee.put(Attendees.ATTENDEE_STATUS, Attendees.ATTENDEE_STATUS_INVITED);
                 } else if (strPARTSTAT.equals(PartStat.ACCEPTED.getValue())) {
-                    Attendee.put(Attendees.ATTENDEE_STATUS, Attendees.ATTENDEE_STATUS_ACCEPTED);
+                    lcAttendee.put(Attendees.ATTENDEE_STATUS, Attendees.ATTENDEE_STATUS_ACCEPTED);
                 } else if (strPARTSTAT.equals(PartStat.DECLINED.getValue())) {
-                    Attendee.put(Attendees.ATTENDEE_STATUS, Attendees.ATTENDEE_STATUS_DECLINED);
+                    lcAttendee.put(Attendees.ATTENDEE_STATUS, Attendees.ATTENDEE_STATUS_DECLINED);
                 } else if (strPARTSTAT.equals(PartStat.COMPLETED.getValue())) {
-                    Attendee.put(Attendees.ATTENDEE_STATUS, Attendees.ATTENDEE_STATUS_NONE);
+                    lcAttendee.put(Attendees.ATTENDEE_STATUS, Attendees.ATTENDEE_STATUS_NONE);
                 } else if (strPARTSTAT.equals(PartStat.TENTATIVE.getValue())) {
-                    Attendee.put(Attendees.ATTENDEE_STATUS, Attendees.ATTENDEE_STATUS_TENTATIVE);
+                    lcAttendee.put(Attendees.ATTENDEE_STATUS, Attendees.ATTENDEE_STATUS_TENTATIVE);
                 } else {
-                    Attendee.put(Attendees.ATTENDEE_STATUS, Attendees.ATTENDEE_STATUS_INVITED);
+                    lcAttendee.put(Attendees.ATTENDEE_STATUS, Attendees.ATTENDEE_STATUS_INVITED);
                 }
 
             }
         }
 
-        return Attendee;
+        return lcAttendee;
     }
 
     private long getAccessLevel() {
-        long Result = Events.ACCESS_DEFAULT;
-        String Value = "";
+        long lcResult = Events.ACCESS_DEFAULT;
+        String lcValue = "";
         Property property = calendarComponent.getProperty(Property.CLASS);
         if (property != null) {
-            Value = property.getValue();
-            if (Value.equals(Clazz.PUBLIC)) {
-                Result = Events.ACCESS_PUBLIC;
-            } else if (Value.equals(Clazz.PRIVATE)) {
-                Result = Events.ACCESS_PRIVATE;
-            } else if (Value.equals(Clazz.CONFIDENTIAL)) {
-                Result
+            lcValue = property.getValue();
+            if (lcValue.equals(Clazz.PUBLIC)) {
+                lcResult = Events.ACCESS_PUBLIC;
+            } else if (lcValue.equals(Clazz.PRIVATE)) {
+                lcResult = Events.ACCESS_PRIVATE;
+            } else if (lcValue.equals(Clazz.CONFIDENTIAL)) {
+                lcResult
                         = Events.ACCESS_PRIVATE; // should be ACCESS_CONFIDENTIAL, but is not implemented within Android
             }
         }
 
-        return Result;
+        return lcResult;
     }
 
     private int getStatus() {
-        int Result = -1;
-        String Value = "";
+        int lcResult = -1;
+        String lcValue = "";
         Property property = calendarComponent.getProperty(Property.STATUS);
         if (property != null) {
-            Value = property.getValue();
-            if (Value.equals(Status.VEVENT_CONFIRMED.getValue())) {
-                Result = Events.STATUS_CONFIRMED;
-            } else if (Value.equals(Status.VEVENT_CANCELLED.getValue())) {
-                Result = Events.STATUS_CANCELED;
-            } else if (Value.equals(Status.VEVENT_TENTATIVE.getValue())) {
-                Result = Events.STATUS_TENTATIVE;
+            lcValue = property.getValue();
+            if (lcValue.equals(Status.VEVENT_CONFIRMED.getValue())) {
+                lcResult = Events.STATUS_CONFIRMED;
+            } else if (lcValue.equals(Status.VEVENT_CANCELLED.getValue())) {
+                lcResult = Events.STATUS_CANCELED;
+            } else if (lcValue.equals(Status.VEVENT_TENTATIVE.getValue())) {
+                lcResult = Events.STATUS_TENTATIVE;
             }
         }
 
-        return Result;
+        return lcResult;
     }
 
     private String getDescription() {
-        String Result = null;
+        String lcResult = null;
         Property property = calendarComponent.getProperty(Property.DESCRIPTION);
         if (property != null) {
-            Result = property.getValue();
+            lcResult = property.getValue();
         }
 
-        return Result;
+        return lcResult;
     }
 
     private String getLocation() {
-        String Result = null;
+        String lcResult = null;
         Property property = calendarComponent.getProperty(Property.LOCATION);
         if (property != null) {
-            Result = property.getValue();
+            lcResult = property.getValue();
         }
 
-        return Result;
+        return lcResult;
     }
 
     private String getTitle() {
@@ -515,102 +483,100 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
     }
 
     private String getRRule() {
-        String Result = null;
+        String lcResult = null;
         Property property = calendarComponent.getProperty(Property.RRULE);
         if (property != null) {
-            Result = property.getValue();
+            lcResult = property.getValue();
         }
 
-        return Result;
+        return lcResult;
     }
 
     private String getExRule() {
-        String Result = null;
+        String lcResult = null;
         Property property = calendarComponent.getProperty(Property.EXRULE);
         if (property != null) {
-            Result = property.getValue();
+            lcResult = property.getValue();
         }
 
-        return Result;
+        return lcResult;
     }
 
     private String getRDate() {
-        String Result = null;
+        String lcResult = null;
 
-        java.util.ArrayList<String> ExDates = this.getRDates();
-        for (String Value : ExDates) {
-            if (Result == null) {
-                Result = "";
+        java.util.ArrayList<String> lcExDates = this.getRDates();
+        for (String lcValue : lcExDates) {
+            if (lcResult == null) {
+                lcResult = "";
             }
-            if (!Result.isEmpty()) {
-                Result += ",";
+            if (!lcResult.isEmpty()) {
+                lcResult += ",";
             }
-            Result += Value;
+            lcResult += lcValue;
         }
 
-        return Result;
+        return lcResult;
     }
 
     private java.util.ArrayList<String> getRDates() {
-        java.util.ArrayList<String> Result = new java.util.ArrayList<String>();
+        ArrayList<String> lcResult = new ArrayList<String>();
         PropertyList Propertys = calendarComponent.getProperties(Property.RDATE);
         if (Propertys != null) {
             Property property;
             for (Object objProperty : Propertys) {
                 property = (Property) objProperty;
-                Result.add(property.getValue());
+                lcResult.add(property.getValue());
             }
         }
 
-        return Result;
+        return lcResult;
     }
 
     private String getExDate() {
-        String Result = null;
+        String lcResult = null;
 
-        java.util.ArrayList<String> ExDates = this.getExDates();
-        for (String Value : ExDates) {
-            if (Result == null) {
-                Result = "";
+        java.util.ArrayList<String> lcExDates = this.getExDates();
+        for (String lcValue : lcExDates) {
+            if (lcResult == null) {
+                lcResult = "";
             }
-            if (!Result.isEmpty()) {
-                Result += ",";
+            if (!lcResult.isEmpty()) {
+                lcResult += ",";
             }
-            Result += Value;
+            lcResult += lcValue;
         }
 
-        return Result;
+        return lcResult;
     }
 
     private java.util.ArrayList<String> getExDates() {
-        java.util.ArrayList<String> Result = new java.util.ArrayList<String>();
-        PropertyList Propertys = calendarComponent.getProperties(Property.EXDATE);
-        if (Propertys != null) {
+        ArrayList<String> lcResult = new ArrayList<String>();
+        PropertyList lcCalendarComponentPropertys = calendarComponent.getProperties(Property.EXDATE);
+        if (lcCalendarComponentPropertys != null) {
             Property property;
-            for (Object objProperty : Propertys) {
+            for (Object objProperty : lcCalendarComponentPropertys) {
                 property = (Property) objProperty;
-                Result.add(property.getValue());
+                lcResult.add(property.getValue());
             }
         }
 
-        return Result;
+        return lcResult;
     }
 
     private String getUid() {
-        String Result = "";
+        String lcResult = "";
         Property prop = calendarComponent.getProperty(Property.UID);
         if (prop != null) {
-            Result = prop.getValue();
+            lcResult = prop.getValue();
         }
 
-        return Result;
+        return lcResult;
     }
 
     private Long getTimestamp(Property prop) {
-        Long Result = null;
+        Long lcResult = null;
         String strTimeZone = "";
-        //TimeZone timeZone = null;
-
         try {
             String strDate = prop.getValue();
 
@@ -626,91 +592,76 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
             if (propTZ != null) {
                 strTimeZone = propTZ.getValue();
             }
-
-            //TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
-            //if (!strTimeZone.equals(""))
-            //	timeZone = registry.getTimeZone(strTimeZone);
-
-            //if (timeZone != null) {
             if (!strTimeZone.equals("")) {
-                //Result = new DateTime(strDate, timeZone);
-                //Result1 = Result.getTime();
 
                 //20130331T120000
-                int Year = Integer.parseInt(strDate.substring(0, 4));
-                int Month = Integer.parseInt(strDate.substring(4, 6)) - 1;
-                int Day = Integer.parseInt(strDate.substring(6, 8));
-                int Hour = Integer.parseInt(strDate.substring(9, 11));
-                int Minute = Integer.parseInt(strDate.substring(11, 13));
-                int Second = Integer.parseInt(strDate.substring(13, 15));
+                int lcYear = Integer.parseInt(strDate.substring(0, 4));
+                int lcMonth = Integer.parseInt(strDate.substring(4, 6)) - 1;
+                int lcDay = Integer.parseInt(strDate.substring(6, 8));
+                int lcHour = Integer.parseInt(strDate.substring(9, 11));
+                int lcMinute = Integer.parseInt(strDate.substring(11, 13));
+                int lcSecond = Integer.parseInt(strDate.substring(13, 15));
 
                 // time in UTC
                 java.util.TimeZone jtz = java.util.TimeZone.getTimeZone("UTC");
                 java.util.Calendar cal = java.util.GregorianCalendar.getInstance(jtz);
-                cal.set(Year, Month, Day, Hour, Minute, Second);
+                cal.set(lcYear, lcMonth, lcDay, lcHour, lcMinute, lcSecond);
                 cal.set(java.util.Calendar.MILLISECOND, 0);
-                Result = cal.getTimeInMillis();
+                lcResult = cal.getTimeInMillis();
 
                 // get the timezone
-                String[] IDs = java.util.TimeZone.getAvailableIDs();
-                Boolean Found = false;
-                for (int i = 0; i < IDs.length; i++) {
-                    Found = Found || IDs[i].equals(strTimeZone);
+                String[] lcIDs = java.util.TimeZone.getAvailableIDs();
+                Boolean lcFound = false;
+                for (int i = 0; i < lcIDs.length; i++) {
+                    lcFound = lcFound || lcIDs[i].equals(strTimeZone);
                 }
-                if (Found) {
+                if (lcFound) {
                     jtz = java.util.TimeZone.getTimeZone(strTimeZone);
 
                     // subtract the offset
-                    Result -= jtz.getRawOffset();
+                    lcResult -= jtz.getRawOffset();
 
                     // remove dst
-                    if (jtz.inDaylightTime(new java.util.Date(Result))) {
-                        Result -= jtz.getDSTSavings();
+                    if (jtz.inDaylightTime(new java.util.Date(lcResult))) {
+                        lcResult -= jtz.getDSTSavings();
                     }
 
                 } else {
                     if (mTimeZone != null) {
                         // subtract the offset
-                        Result -= mTimeZone.getRawOffset();
+                        lcResult -= mTimeZone.getRawOffset();
 
                         // remove dst
-                        if (mTimeZone.inDaylightTime(new java.util.Date(Result))) {
-                            Result -= mTimeZone.getDSTSavings();
+                        if (mTimeZone.inDaylightTime(new java.util.Date(lcResult))) {
+                            lcResult -= mTimeZone.getDSTSavings();
                         }
                     } else {
                         // unknown Time?
                         // treat as local time, should not happen too often :)
-                        Result = new DateTime(strDate).getTime();
+                        lcResult = new DateTime(strDate).getTime();
                     }
                 }
             } else {
                 if (strDate.endsWith("Z")) {
                     // GMT or UTC
-                    Result = new DateTime(strDate).getTime();
+                    lcResult = new DateTime(strDate).getTime();
                 } else {
                     // unknown Time?
                     // treat as local time, should not happen too often :)
-                    Result = new DateTime(strDate).getTime();
+                    lcResult = new DateTime(strDate).getTime();
                 }
             }
 
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.e(getETag(), e.getMessage());
         }
 
-        return Result;
+        return lcResult;
     }
 
     private long getStartTime() {
-        long Result = 0;
+        long lcResult = 0;
         Property prop;
-                /*
-                 * DTSTART;TZID=Europe/Berlin:20120425T080000
-		 * DTSTART;TZID=(GMT+01.00) Sarajevo/Warsaw/Zagreb:20120305T104500
-		 * DTSTART:20120308T093000Z
-		 * DTSTART;VALUE=DATE:20120709
-		 * DTSTART;TZID=Europe/Berlin:20130330T100000
-		 */
 
         prop = calendarComponent.getProperty(Property.DTSTART);
         if (prop != null) {
@@ -718,14 +669,14 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
             if (propTZ != null) {
                 mstrTimeZoneStart = propTZ.getValue();
             }
-            Result = getTimestamp(prop);
+            lcResult = getTimestamp(prop);
         }
 
-        return Result;
+        return lcResult;
     }
 
     private long getEndTime() {
-        long Result = 0;
+        long lcResult = 0;
         Property propDtEnd;
         Property propDuration;
 
@@ -736,14 +687,13 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
             if (propTZ != null) {
                 mstrTimeZoneEnd = propTZ.getValue();
             }
-            Result = getTimestamp(propDtEnd);
+            lcResult = getTimestamp(propDtEnd);
 
         } else if (propDuration != null) {
-            Result = 0;
             long Start = this.getStartTime();
             String strDuration = propDuration.getValue();
             Dur dur = new Dur(strDuration);
-            Result = Start
+            lcResult = Start
                     + dur.getSeconds() * 1000
                     + dur.getMinutes() * 60 * 1000
                     + dur.getHours() * 60 * 60 * 1000
@@ -752,81 +702,81 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
             mstrTimeZoneEnd = mstrTimeZoneStart;
         }
 
-        return Result;
+        return lcResult;
     }
 
     private String getTimeZoneStart() {
-        String Result = "GMT";
+        String lcResult = "GMT";
 
         if (!mstrTimeZoneStart.equals("")) {
-            Result = mstrTimeZoneStart;
+            lcResult = mstrTimeZoneStart;
         }
 
-        return Result;
+        return lcResult;
     }
 
     private String getTimeZoneEnd() {
-        String Result = "GMT";
+        String lcResult = "GMT";
 
         if (!mstrTimeZoneEnd.equals("")) {
-            Result = mstrTimeZoneEnd;
+            lcResult = mstrTimeZoneEnd;
         }
 
-        return Result;
+        return lcResult;
     }
 
     private String getDuration() {
-        String Result = "";
+        String lcResult = "";
         Property prop = calendarComponent.getProperty("DURATION");
 
         if (prop != null) {
             //DURATION:PT1H
-            Result = prop.getValue();
+            lcResult = prop.getValue();
         } else {
             // no DURATION given by this event. we have to calculate it by ourself
-            Result = "P";
-            long Start = this.getStartTime();
-            long End = this.getEndTime();
-            long Duration = 0;
-            if (End != 0) {
-                Duration = (End - Start)
+            lcResult = "P";
+            long lcStartTime = this.getStartTime();
+            long lcEndTime = this.getEndTime();
+            long lcDurationTime = 0;
+            if (lcEndTime != 0) {
+                lcDurationTime = (lcEndTime - lcStartTime)
                         / 1000; // get rid of the milliseconds, they cann't be described with RFC2445-Duration
             }
 
-            if (Duration < 0) {
-                Duration = 0;
+            if (lcDurationTime < 0) {
+                lcDurationTime = 0;
             }
-            int Days = (int) Math.ceil(Duration / 24 / 60 / 60);
-            int Hours = (int) Math.ceil((Duration - (Days * 24 * 60 * 60)) / 60 / 60);
+            int Days = (int) Math.ceil(lcDurationTime / 24 / 60 / 60);
+            int Hours = (int) Math.ceil((lcDurationTime - (Days * 24 * 60 * 60)) / 60 / 60);
             int Minutes = (int) Math
-                    .ceil((Duration - (Days * 24 * 60 * 60) - (Hours * 60 * 60)) / 60);
-            int Seconds = (int) (Duration - (Days * 24 * 60 * 60) - (Hours * 60 * 60) - (Minutes
+                    .ceil((lcDurationTime - (Days * 24 * 60 * 60) - (Hours * 60 * 60)) / 60);
+            int Seconds = (int) (lcDurationTime - (Days * 24 * 60 * 60) - (Hours * 60 * 60) - (Minutes
                     * 60));
 
             if (Days > 0) {
-                Result += String.valueOf(Days) + "D";
+                lcResult += String.valueOf(Days) + "D";
             }
 
             if (!mAllDay) {
                 //if a ALL_DAY event occurs, there is no need for hours, minutes and seconds (Android doesn't understand them)
-                Result += "T";
-                Result += String.valueOf(Hours) + "H";
-                Result += String.valueOf(Minutes) + "M";
-                Result += String.valueOf(Seconds) + "S";
+                lcResult += "T";
+                lcResult += String.valueOf(Hours) + "H";
+                lcResult += String.valueOf(Minutes) + "M";
+                lcResult += String.valueOf(Seconds) + "S";
             }
         }
 
-        return Result;
+        return lcResult;
     }
 
     private int getAllDay() {
-        int Result = 0;
+        int lcResult = 0;
 
         if (mAllDay) {
-            Result = 1;
+            lcResult = 1;
         }
 
-        return Result;
+        return lcResult;
     }
 
     /**
@@ -837,7 +787,7 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
      * @see CalendarEvent#fetchBody()
      */
     private boolean parseIcs() throws CaldavProtocolException, IOException, ParserException {
-        boolean Error = false;
+        boolean lcError = false;
         Thread.currentThread().setContextClassLoader(App.getContext().getClassLoader());
         CalendarBuilder builder = new CalendarBuilder();
         CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_UNFOLDING, true);
@@ -851,10 +801,10 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
         } catch (ParserException ex) {
             // ical4j fails with this: "Cannot set timezone for UTC properties"
             // CREATED;TZID=America/New_York:20130129T140250
-            Error = true;
+            lcError = true;
         }
 
-        if (!Error) {
+        if (!lcError) {
             ComponentList components = null;
             components = this.calendar.getComponents(Component.VEVENT);
             if (components.size() == 0) {
@@ -863,7 +813,7 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
                     throw new CaldavProtocolException("unknown events in ICS");
                 } else {
                     Log.e(TAG, "unsupported event TODO in ICS");
-                    Error = true;
+                    lcError = true;
                 }
             } else if (components.size() > 1) {
                 Log.e(TAG, "Several events in ICS -> only first will be processed");
@@ -878,12 +828,12 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
                 mTimeZone = new TimeZone(mVTimeZone);
             }
 
-            if (!Error) {
+            if (!lcError) {
                 calendarComponent = (Component) components.get(0);
             }
         }
 
-        return !Error;
+        return !lcError;
     }
 
     /**
@@ -892,7 +842,7 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
      * @return the android event
      */
     public AndroidEvent getAndroidEvent(DavCalendar androidCalendar) throws RemoteException {
-        boolean Error = false;
+        boolean lcError = false;
         Uri uriEvents = Events.CONTENT_URI;
         Uri uriAttendee = Attendees.CONTENT_URI;
         Uri uriReminder = Reminders.CONTENT_URI;
@@ -906,20 +856,19 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
         Cursor curReminder = null;
 
         if (curEvent == null) {
-            Error = true;
+            lcError = true;
         }
-        if (!Error) {
+        if (!lcError) {
             if (curEvent.getCount() == 0) {
-                Error = true;
+                lcError = true;
             }
         }
-        if (!Error) {
+        if (!lcError) {
             curEvent.moveToNext();
 
             long EventID = curEvent.getLong(curEvent.getColumnIndex(Events._ID));
             Uri returnedUri = ContentUris.withAppendedId(uriEvents, EventID);
 
-            //androidEvent = new AndroidEvent(this.mAccount, this.mProvider, returnedUri, androidCalendar.getAndroidCalendarUri());
             androidEvent = new AndroidEvent(returnedUri, androidCalendar.getAndroidCalendarUri());
             androidEvent.readContentValues(curEvent);
 
@@ -934,27 +883,25 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
             curAttendee.close();
             curReminder.close();
         }
-        curEvent.close();
+        if (curEvent != null) {
+            curEvent.close();
+        }
 
         return androidEvent;
     }
 
     /**
      * creates a new androidEvent from a given calendarEvent
-     *
-     * @see {@link SyncAdapter#synchroniseEvents(CaldavFacade, Account, ContentProviderClient, Uri,
-     * DavCalendar, SyncStats)}
      */
     public boolean createAndroidEvent(DavCalendar androidCalendar)
             throws ClientProtocolException, IOException, CaldavProtocolException, RemoteException,
             ParserException {
-        boolean Result = false;
-        boolean BodyFetched = this.fetchBody();
-        int CountAttendees = 0;
-        int CountReminders = 0;
+        boolean lcResult = false;
+        boolean lcBodyFetched = this.fetchBody();
+        int lcCountAttendees = 0;
+        int lcCountReminders = 0;
 
-        if (BodyFetched) {
-            //calendarEvent.readContentValues(calendarUri);
+        if (lcBodyFetched) {
             this.readContentValues();
             this.setAndroidCalendarId(ContentUris.parseId(androidCalendar.getAndroidCalendarUri()));
 
@@ -972,17 +919,17 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
             ArrayList<ContentValues> AttendeeList = this.getAttandees();
             for (ContentValues Attendee : AttendeeList) {
                 this.mProvider.insert(Attendees.CONTENT_URI, Attendee);
-                CountAttendees += 1;
+                lcCountAttendees += 1;
             }
 
             //check the reminders
             ArrayList<ContentValues> ReminderList = this.getReminders();
             for (ContentValues Reminder : ReminderList) {
                 this.mProvider.insert(Reminders.CONTENT_URI, Reminder);
-                CountReminders += 1;
+                lcCountReminders += 1;
             }
 
-            if ((CountAttendees > 0) || (CountReminders > 0)) {
+            if ((lcCountAttendees > 0) || (lcCountReminders > 0)) {
                 //the events gets dirty when attendees or reminders were added
                 AndroidEvent androidEvent = this.getAndroidEvent(androidCalendar);
 
@@ -990,27 +937,24 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
                 int RowCount = this.mProvider
                         .update(asSyncAdapter(androidEvent.getUri(), this.mAccount.name,
                                 this.mAccount.type), androidEvent.ContentValues, null, null);
-                Result = (RowCount == 1);
+                lcResult = (RowCount == 1);
             } else {
-                Result = true;
+                lcResult = true;
             }
 
 
         }
-        return Result;
+        return lcResult;
     }
 
     /**
      * the android event is getting updated
-     *
-     * @see {@link SyncAdapter#synchroniseEvents(CaldavFacade, Account, ContentProviderClient, Uri,
-     * Calendar, SyncStats)}
      */
     public boolean updateAndroidEvent(AndroidEvent androidEvent)
             throws ClientProtocolException, IOException, CaldavProtocolException, RemoteException,
             ParserException {
         boolean BodyFetched = this.fetchBody();
-        int Rows = 0;
+        int lcRows = 0;
 
         if (BodyFetched) {
             this.readContentValues();
@@ -1035,7 +979,7 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
                 androidEvent.ContentValues.put(Events.DIRTY, 0); // the event is now in sync
                 Log.d(TAG, "Update calendar event: for " + androidEvent.getUri());
 
-                Rows = mProvider
+                lcRows = mProvider
                         .update(asSyncAdapter(androidEvent.getUri(), mAccount.name, mAccount.type),
                                 androidEvent.ContentValues, null, null);
                 //Log.i(TAG, "Updated calendar event: rows effected " + Rows.toString());
@@ -1043,18 +987,15 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
                 Log.d(TAG, "Update calendar event not needed: for " + androidEvent.getUri());
             }
         }
-        return (Rows == 1);
+        return (lcRows == 1);
     }
 
     /**
      * updates the attendees from a calendarEvent to its androidEvent.
      * the calendarEvent has to know its androidEvent via {@link CalendarEvent#setAndroidEventUri(Uri)}
-     *
-     * @see SyncAdapter#updateAndroidEvent(ContentProviderClient, Account, AndroidEvent,
-     * CalendarEvent)
      */
     private boolean updateAndroidAttendees() {
-        boolean Result = false;
+        boolean lcResult = false;
 
         try {
             String mSelectionClause = "(" + Attendees.EVENT_ID + " = ?)";
@@ -1070,47 +1011,44 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
                 this.mProvider.insert(Attendees.CONTENT_URI, Attendee);
             }
             Log.d(TAG, "Attendees Inserted:" + String.valueOf(AttendeeList.size()));
-            Result = true;
+            lcResult = true;
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(getETag(),e.getMessage());
         }
 
-        return Result;
+        return lcResult;
     }
 
     /**
      * update the reminders from a calendarEvent to its androidEvent.
      * the calendarEvent has to know its androidEvent via {@link CalendarEvent#setAndroidEventUri(Uri)}
-     *
-     * @see SyncAdapter#updateAndroidEvent(ContentProviderClient, Account, AndroidEvent,
-     * CalendarEvent)
      */
     private boolean updateAndroidReminder() {
-        boolean Result = false;
+        boolean lcResult = false;
 
         try {
             String mSelectionClause = "(" + Reminders.EVENT_ID + " = ?)";
             String[] mSelectionArgs = {
                     Long.toString(ContentUris.parseId(this.getAndroidEventUri()))};
-            int RowDelete;
-            RowDelete = this.mProvider
+            int lcRowDelete;
+            lcRowDelete = this.mProvider
                     .delete(Reminders.CONTENT_URI, mSelectionClause, mSelectionArgs);
-            Log.d(TAG, "Reminders Deleted:" + String.valueOf(RowDelete));
+            Log.d(TAG, "Reminders Deleted:" + String.valueOf(lcRowDelete));
 
-            Uri ReminderUri;
+            Uri lcReminderUri;
             java.util.ArrayList<ContentValues> ReminderList = this.getReminders();
             for (ContentValues Reminder : ReminderList) {
-                ReminderUri = this.mProvider.insert(Reminders.CONTENT_URI, Reminder);
-                System.out.println(ReminderUri);
+                lcReminderUri = this.mProvider.insert(Reminders.CONTENT_URI, Reminder);
+                System.out.println(lcReminderUri);
             }
             Log.d(TAG, "Reminders Inserted:" + String.valueOf(ReminderList.size()));
 
-            Result = true;
+            lcResult = true;
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(getETag(),e.getMessage());
         }
 
-        return Result;
+        return lcResult;
     }
 }
 
