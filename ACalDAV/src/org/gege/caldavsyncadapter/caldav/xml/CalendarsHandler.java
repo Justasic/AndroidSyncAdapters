@@ -125,7 +125,6 @@ public class CalendarsHandler extends DefaultHandler {
                     calendar.setCalendarColorAsString(stringBuilder.toString());
                 }
             }
-            //stringBuilder.setLength(0);
         } else if (RESPONSE.equals(localName)) {
             if (isCalendarResource && isValidCalendar(calendar)) {
                 calendars.add(calendar);

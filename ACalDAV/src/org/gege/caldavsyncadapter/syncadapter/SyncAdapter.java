@@ -92,7 +92,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             mVersion = context.getPackageManager()
                     .getPackageInfo(context.getPackageName(), 0).versionName;
         } catch (NameNotFoundException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         }
     }
 
@@ -123,23 +123,22 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         ArrayList<Uri> notifyList = new ArrayList<Uri>();
 
         try {
-            String Username = "";
-            String UserDataVersion = mAccountManager
+            String lcUsername = "";
+            String lcUserDataVersion = mAccountManager
                     .getUserData(account, AuthenticatorActivity.USER_DATA_VERSION);
-            if (UserDataVersion == null) {
-                Username = account.name;
+            if (lcUserDataVersion == null) {
+                lcUsername = account.name;
             } else {
-                Username = mAccountManager
+                lcUsername = mAccountManager
                         .getUserData(account, AuthenticatorActivity.USER_DATA_USERNAME);
             }
 
-            CaldavFacade facade = new CaldavFacade(Username, mAccountManager.getPassword(account),
+            CaldavFacade facade = new CaldavFacade(lcUsername, mAccountManager.getPassword(account),
                     url, trust);
             facade.setAccount(account);
             facade.setProvider(provider);
             facade.setVersion(mVersion);
             serverCalList = facade.getCalendarList(this.getContext());
-            //String davProperties = facade.getLastDav();
             Log.i(TAG, String.valueOf(androidCalList.getCalendarList()
                     .size()) + " calendars found at android");
 
@@ -265,12 +264,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     /**
      * both calender event and android event have been found.
      * server wins always at the moment.
-     *
-     * @see SyncAdapter#updateAndroidEvent(ContentProviderClient, Account, AndroidEvent,
-     * CalendarEvent)
-     * @see SyncAdapter#tagAndroidEvent(ContentProviderClient, Account, AndroidEvent)
-     * @see SyncAdapter#untagAndroidEvents(ContentProviderClient, Account, Uri)
-     * @see SyncAdapter#deleteUntaggedEvents(ContentProviderClient, Account, Uri)
      */
     private void synchroniseEvents(
             DavCalendar androidCalendar,
@@ -295,7 +288,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         .toString() + " androidUri=" + androidEvent);
 
                 if (androidEvent == null) {
-					/* new android event */
+                    /* new android event */
                     if (calendarEvent.createAndroidEvent(androidCalendar)) {
                         rowInsert += 1;
                         androidEvent = calendarEvent.getAndroidEvent(androidCalendar);
@@ -304,7 +297,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         rowSkip += 1;
                     }
                 } else {
-					/* the android exists */
+                    /* the android exists */
                     String androidETag = androidEvent.getETag();
                     if (androidETag == null) {
                         androidETag = "";
@@ -313,7 +306,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                             .toString());
                     if ((androidEvent.getETag() == null) || (!androidETag
                             .equals(calendarEvent.getETag()))) {
-						// the android event is getting updated
+                        // the android event is getting updated
                         if (calendarEvent.updateAndroidEvent(androidEvent)) {
                             rowUpdate += 1;
                             notifyList.add(androidEvent.getUri());
@@ -322,8 +315,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         }
                     }
                 }
-                if (androidEvent != null)
-                {
+                if (androidEvent != null) {
                     if (androidCalendar.tagAndroidEvent(androidEvent)) {
                         rowTag += 1;
                     }
@@ -378,8 +370,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Cursor curEvent = null;
         Cursor curAttendee = null;
         Cursor curReminder = null;
-        Long EventID;
-        Long CalendarID;
+        Long lcEventID;
+        Long lcCalendarID;
         AndroidEvent androidEvent = null;
         int rowDirty = 0;
         int rowInsert = 0;
@@ -387,24 +379,24 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         int rowDelete = 0;
 
         try {
-            CalendarID = ContentUris.parseId(calendarUri);
+            lcCalendarID = ContentUris.parseId(calendarUri);
             String selection = "(" + Events.DIRTY + " = ?) AND (" + Events.CALENDAR_ID + " = ?)";
-            String[] selectionArgs = new String[]{"1", CalendarID.toString()};
+            String[] selectionArgs = new String[]{"1", lcCalendarID.toString()};
             curEvent = provider.query(Events.CONTENT_URI, null, selection, selectionArgs, null);
 
             while (curEvent.moveToNext()) {
-                EventID = curEvent.getLong(curEvent.getColumnIndex(Events._ID));
-                Uri returnedUri = ContentUris.withAppendedId(Events.CONTENT_URI, EventID);
+                lcEventID = curEvent.getLong(curEvent.getColumnIndex(Events._ID));
+                Uri returnedUri = ContentUris.withAppendedId(Events.CONTENT_URI, lcEventID);
 
                 androidEvent = new AndroidEvent(returnedUri, calendarUri);
                 androidEvent.readContentValues(curEvent);
 
                 selection = "(" + Attendees.EVENT_ID + " = ?)";
-                selectionArgs = new String[]{String.valueOf(EventID)};
+                selectionArgs = new String[]{String.valueOf(lcEventID)};
                 curAttendee = provider
                         .query(Attendees.CONTENT_URI, null, selection, selectionArgs, null);
                 selection = "(" + Reminders.EVENT_ID + " = ?)";
-                selectionArgs = new String[]{String.valueOf(EventID)};
+                selectionArgs = new String[]{String.valueOf(lcEventID)};
                 curReminder = provider
                         .query(Reminders.CONTENT_URI, null, selection, selectionArgs, null);
                 androidEvent.readAttendees(curAttendee);
@@ -442,8 +434,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                         CalendarEvent calendarEvent = new CalendarEvent(account, provider);
                         calendarEvent.calendarURL = caldavCalendarUri.toURL();
-                        URI SyncURI = new URI(SyncID);
-                        calendarEvent.setUri(SyncURI);
+                        URI lcSyncURI = new URI(SyncID);
+                        calendarEvent.setUri(lcSyncURI);
                         CaldavFacade.getEvent(calendarEvent);
                         values.put(Event.ETAG, calendarEvent.getETag());
 
@@ -463,7 +455,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     // deleted Android event
                     if (facade.deleteEvent(URI.create(SyncID), androidEvent.getETag())) {
                         String mSelectionClause = "(" + Events._ID + "= ?)";
-                        String[] mSelectionArgs = {String.valueOf(EventID)};
+                        String[] mSelectionArgs = {String.valueOf(lcEventID)};
 
                         int countDeleted = provider
                                 .delete(asSyncAdapter(Events.CONTENT_URI, account.name,
@@ -494,7 +486,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         if (facade.updateEvent(URI.create(SyncID), androidEvent.getIcsEvent()
                                 .toString(), androidEvent.getETag())) {
                             selection = "(" + Events._ID + "= ?)";
-                            selectionArgs = new String[]{EventID.toString()};
+                            selectionArgs = new String[]{lcEventID.toString()};
                             androidEvent.ContentValues.put(Events.DIRTY, 0);
 
                             //google doesn't send the etag after update
@@ -536,22 +528,17 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             stats.numSkippedEntries += rowDirty;
             stats.numEntries += rowInsert + rowUpdate + rowDelete;
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         } catch (URISyntaxException e) {
-            // TODO Automatisch generierter Erfassungsblock
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         } catch (ClientProtocolException e) {
-            // TODO Automatisch generierter Erfassungsblock
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         } catch (IOException e) {
-            // TODO Automatisch generierter Erfassungsblock
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         } catch (CaldavProtocolException e) {
-            // TODO Automatisch generierter Erfassungsblock
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         } catch (ParserException e) {
-            // TODO Automatisch generierter Erfassungsblock
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         }
 
         return rowDirty;

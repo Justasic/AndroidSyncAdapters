@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.provider.CalendarContract.Attendees;
 import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Reminders;
+import android.util.Log;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
@@ -103,16 +104,9 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
 
     private Calendar mCalendar = null;
 
-/*	private Account mAccount = null;
-    private ContentProviderClient mProvider = null;*/
-
-    //public AndroidEvent(Account account, ContentProviderClient provider, Uri uri, Uri calendarUri) {
     public AndroidEvent(Uri uri, Uri calendarUri) {
         super();
         this.setUri(uri);
-/*		this.mAccount = account;
-        this.mProvider = provider;*/
-        //this.setCounterpartUri(calendarUri);
         mAndroidCalendarUri = calendarUri;
     }
 
@@ -170,7 +164,6 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
         this.ContentValues
                 .put(Events.CALENDAR_ID, cur.getString(cur.getColumnIndex(Events.CALENDAR_ID)));
         this.ContentValues.put(Events._SYNC_ID, cur.getString(cur.getColumnIndex(Events._SYNC_ID)));
-        //this.ContentValues.put(Events.SYNC_DATA1, cur.getString(cur.getColumnIndex(Events.SYNC_DATA1))); //not needed here, eTag has already been read
         this.ContentValues
                 .put(Events.DESCRIPTION, cur.getString(cur.getColumnIndex(Events.DESCRIPTION)));
         this.ContentValues.put(Events.EVENT_LOCATION,
@@ -274,7 +267,7 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
             }
 
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            Log.e(getETag(), e.getMessage());
         }
         return true;
     }
@@ -329,30 +322,8 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
         TimeZone timeZone = null;
         Thread.currentThread().setContextClassLoader(App.getContext().getClassLoader());
         TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
+
 //TODO: do not simply create the ics-file new. take into account the RAWDATA if available
-                /*
-                 * dtstart=1365598800000
-		 * dtend=1365602400000
-		 * eventTimezone=Europe/Berlin
-		 * eventEndTimezone=null
-		 * duration=null
-		 * allDay=0
-		 * rrule=null
-		 * rdate=null
-		 * exrule=null
-		 * exdate=null
-		 * title=Einurlner Termin
-		 * description=null
-		 * eventLocation=null
-		 * accessLevel=0
-		 * eventStatus=0
-		 * 
-		 * calendar_id=4
-		 * lastDate=-197200128
-		 * sync_data1=null
-		 * _sync_id=null
-		 * dirty=1
-		 */
 
         try {
             mCalendar = new Calendar();
@@ -364,18 +335,6 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
             VEvent event = new VEvent();
             mCalendar.getComponents().add(event);
             PropertyList propEvent = event.getProperties();
-
-            // DTSTAMP -> is created by new VEvent() automatical
-            //na
-
-            // CREATED
-            //na
-
-            // LAST-MODIFIED
-            //na
-
-            // SEQUENCE
-            //na
 
             // DTSTART
             long lngStart = this.ContentValues.getAsLong(Events.DTSTART);
@@ -577,37 +536,10 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
             }
 
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.e(getETag(), e.getMessage());
         }
 
         return result;
     }
-
-    /**
-     * marks the android event as already handled
-     *
-     * @see AndroidEvent#cInternalTag
-     * @see SyncAdapter#synchroniseEvents(CaldavFacade, Account, ContentProviderClient, Uri,
-     * DavCalendar, SyncStats)
-     */
-//    public boolean tagAndroidEvent() throws RemoteException {
-//
-//        ContentValues values = new ContentValues();
-//        values.put(Event.INTERNALTAG, 1);
-//
-//        int RowCount = this.mProvider
-//                .update(asSyncAdapter(this.getUri(), this.mAccount.name, this.mAccount.type),
-//                        values, null, null);
-//        //Log.e(TAG,"Rows updated: " + RowCount.toString());
-//
-//        return (RowCount == 1);
-//    }
-
-/*	private static Uri asSyncAdapter(Uri uri, String account, String accountType) {
-            return uri.buildUpon()
-	        .appendQueryParameter(android.provider.CalendarContract.CALLER_IS_SYNCADAPTER,"true")
-	        .appendQueryParameter(Calendars.ACCOUNT_NAME, account)
-	        .appendQueryParameter(Calendars.ACCOUNT_TYPE, accountType).build();
-	 }*/
 }
 

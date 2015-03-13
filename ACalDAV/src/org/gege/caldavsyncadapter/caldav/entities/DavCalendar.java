@@ -29,6 +29,7 @@ import android.content.SyncStats;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
+import android.provider.CalendarContract;
 import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
 import android.util.Log;
@@ -138,7 +139,7 @@ public class DavCalendar {
         try {
             uri = new URI(strSyncID);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            Log.e(getcTag(), e.getMessage());
         }
         this.setURI(uri);
     }
@@ -160,7 +161,7 @@ public class DavCalendar {
         try {
             result = new URI(strUri);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            Log.e(getcTag(), e.getMessage());
         }
         return result;
     }
@@ -192,7 +193,6 @@ public class DavCalendar {
     public void setCTag(String cTag, boolean Update) {
         this.setContentValueAsString(DavCalendar.CTAG, cTag);
         if (Update) {
-            //serverCalendar.updateAndroidCalendar(androidCalendarUri, Calendar.CTAG, serverCalendar.getcTag());
             try {
                 this.updateAndroidCalendar(this.getAndroidCalendarUri(), CTAG, cTag);
             } catch (RemoteException e) {
@@ -342,7 +342,7 @@ public class DavCalendar {
      * @return success of this function
      */
     private boolean correctSyncID(String calendarUri) {
-        boolean Result = false;
+        boolean lcResult = false;
         Log.v(TAG, "correcting SyncID for calendar:" + this
                 .getContentValueAsString(Calendars.CALENDAR_DISPLAY_NAME));
 
@@ -351,12 +351,12 @@ public class DavCalendar {
 
         try {
             mProvider.update(this.SyncAdapterCalendar(), mUpdateValues, null, null);
-            Result = true;
+            lcResult = true;
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(getcTag(), e.getMessage());
         }
 
-        return Result;
+        return lcResult;
     }
 
     /**
@@ -366,7 +366,7 @@ public class DavCalendar {
      * @return success of this function
      */
     private boolean correctServerUrl(String serverUrl) {
-        boolean Result = false;
+        boolean lcResult = false;
         Log.v(TAG, "correcting ServerUrl for calendar:" + this
                 .getContentValueAsString(Calendars.CALENDAR_DISPLAY_NAME));
 
@@ -375,12 +375,12 @@ public class DavCalendar {
 
         try {
             mProvider.update(this.SyncAdapterCalendar(), mUpdateValues, null, null);
-            Result = true;
+            lcResult = true;
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(getcTag(), e.getMessage());
         }
 
-        return Result;
+        return lcResult;
     }
 
     /**
@@ -391,7 +391,7 @@ public class DavCalendar {
     private DavCalendar createNewAndroidCalendar(DavCalendar serverCalendar, int index,
                                                  android.content.Context context) {
         Uri newUri = null;
-        DavCalendar Result = null;
+        DavCalendar lcResult = null;
 
         final ContentValues contentValues = new ContentValues();
         contentValues.put(DavCalendar.URI, serverCalendar.getURI().toString());
@@ -411,7 +411,6 @@ public class DavCalendar {
             contentValues.put(Calendars.CALENDAR_COLOR, color);
         } else {
             // find a color
-            //int index = mList.size();
             index = index % CalendarColors.colors.length;
             contentValues.put(Calendars.CALENDAR_COLOR, CalendarColors.colors[2]);
         }
@@ -443,21 +442,21 @@ public class DavCalendar {
 
             if (cur != null) {
                 while (cur.moveToNext()) {
-                    Result = new DavCalendar(mAccount, mProvider, cur, this.Source, this.ServerUrl);
-                    Result.foundServerSide = true;
+                    lcResult = new DavCalendar(mAccount, mProvider, cur, this.Source, this.ServerUrl);
+                    lcResult.foundServerSide = true;
                 }
                 cur.close();
-                //if (Result != null)
-                //	this.mList.add(Result);
             }
-            Log.i(TAG, "New calendar created : URI=" + Result.getAndroidCalendarUri());
-            NotificationsHelper.signalSyncErrors(context, "CalDAV Sync Adapter",
-                    "new calendar found: " + Result
-                            .getCalendarDisplayName());
-            mNotifyList.add(Result.getAndroidCalendarUri());
+            if (lcResult != null) {
+                Log.i(TAG, "New calendar created : URI=" + lcResult.getAndroidCalendarUri());
+                NotificationsHelper.signalSyncErrors(context, "CalDAV Sync Adapter",
+                        "new calendar found: " + lcResult
+                                .getCalendarDisplayName());
+                mNotifyList.add(lcResult.getAndroidCalendarUri());
+            }
         }
 
-        return Result;
+        return lcResult;
     }
 
     private int getColorAsHex(String calendarColorAsString) {
@@ -477,24 +476,24 @@ public class DavCalendar {
      * side.
      */
     public boolean deleteAndroidCalendar() {
-        boolean Result = false;
+        boolean lcResult = false;
 
         String mSelectionClause = "(" + Calendars._ID + " = ?)";
         int calendarId = this.getAndroidCalendarId();
         String[] mSelectionArgs = {Long.toString(calendarId)};
 
-        int CountDeleted = 0;
+        int lcCountDeleted = 0;
         try {
-            CountDeleted = mProvider.delete(this.SyncAdapter(), mSelectionClause, mSelectionArgs);
+            lcCountDeleted = mProvider.delete(this.SyncAdapter(), mSelectionClause, mSelectionArgs);
             Log.i(TAG, "Calendar deleted: " + String.valueOf(calendarId));
             this.mNotifyList.add(this.getAndroidCalendarUri());
-            Result = true;
+            lcResult = true;
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(getcTag(),e.getMessage());
         }
-        Log.d(TAG, "Android Calendars deleted: " + Integer.toString(CountDeleted));
+        Log.d(TAG, "Android Calendars deleted: " + Integer.toString(lcCountDeleted));
 
-        return Result;
+        return lcResult;
     }
 
     /**
@@ -531,71 +530,50 @@ public class DavCalendar {
 
     /**
      * marks the android event as already handled
-     *
-     * @see AndroidEvent#cInternalTag
-     * @see SyncAdapter#synchroniseEvents(CaldavFacade, Account, ContentProviderClient, Uri,
-     * DavCalendar, SyncStats)
      */
     public boolean tagAndroidEvent(AndroidEvent androidEvent) throws RemoteException {
-        boolean Result = false;
+        boolean lcResult = false;
 
         ContentValues values = new ContentValues();
-        //values.put(Event.INTERNALTAG, 1);
         values.put(Event.INTERNALTAG, mTagCounter);
-        //values.put(Event.INTERNALTAG, String.valueOf(mTagCounter));
 
-        int RowCount = this.mProvider
+        int lcRowCount = this.mProvider
                 .update(asSyncAdapter(androidEvent.getUri(), this.mAccount.name,
                         this.mAccount.type), values, null, null);
-        //Log.v(TAG,"event tag nr: " + String.valueOf(mTagCounter));
-        //Log.v(TAG,"Rows updated: " + String.valueOf(RowCount));
 
-        if (RowCount == 1) {
-            Result = true;
+        if (lcRowCount == 1) {
+            lcResult = true;
             mTagCounter += 1;
         } else {
             Log.v(TAG, "EVENT NOT TAGGED!");
         }
 
-        return Result;
+        return lcResult;
     }
 
     /**
      * removes the tag of all android events
-     *
-     * @see AndroidEvent#cInternalTag
-     * @see SyncAdapter#synchroniseEvents(CaldavFacade, Account, ContentProviderClient, Uri,
-     * DavCalendar, SyncStats)
      */
     public int untagAndroidEvents() throws RemoteException {
-        int RowCount = 0;
-        int Steps = 100;
+        int lcRowCount = 0;
+        int lcSteps = 100;
         ContentValues values = new ContentValues();
         values.put(Event.INTERNALTAG, 0);
 
-        for (int i = 1; i < this.mTagCounter; i = i + Steps) {
+        for (int i = 1; i < this.mTagCounter; i = i + lcSteps) {
             String mSelectionClause = "(CAST(" + Event.INTERNALTAG + " AS INT) >= ?) AND (CAST("
                     + Event.INTERNALTAG + " AS INT) < ?) AND (" + Events.CALENDAR_ID + " = ?)";
-            String[] mSelectionArgs = {String.valueOf(i), String.valueOf(i + Steps),
+            String[] mSelectionArgs = {String.valueOf(i), String.valueOf(i + lcSteps),
                     Long.toString(ContentUris
                             .parseId(this.getAndroidCalendarUri()))};
-            RowCount += this.mProvider.update(asSyncAdapter(Events.CONTENT_URI, this.mAccount.name,
+            lcRowCount += this.mProvider.update(asSyncAdapter(Events.CONTENT_URI, this.mAccount.name,
                     this.mAccount.type), values, mSelectionClause, mSelectionArgs);
         }
-        /*String mSelectionClause = "(" + Event.INTERNALTAG +  " > ?) AND (" + Events.CALENDAR_ID + " = ?)";
-        String[] mSelectionArgs = {"0", Long.toString(ContentUris.parseId(this.getAndroidCalendarUri()))};
-		RowCount += this.mProvider.update(asSyncAdapter(Events.CONTENT_URI, this.mAccount.name, this.mAccount.type), values, mSelectionClause, mSelectionArgs);*/
-
-        //Log.d(TAG, "Rows reseted: " + RowCount.toString());
-        return RowCount;
+        return lcRowCount;
     }
 
     /**
      * Events not being tagged are for deletion
-     *
-     * @see AndroidEvent#cInternalTag
-     * @see SyncAdapter#synchroniseEvents(CaldavFacade, Account, ContentProviderClient, Uri,
-     * DavCalendar, SyncStats)
      */
     public int deleteUntaggedEvents() throws RemoteException {
         String mSelectionClause = "(" + Event.INTERNALTAG + " < ?) AND (" + Events.CALENDAR_ID
@@ -603,11 +581,12 @@ public class DavCalendar {
         String[] mSelectionArgs = {"1",
                 Long.toString(ContentUris.parseId(this.getAndroidCalendarUri()))};
 
-        int CountDeleted = this.mProvider
+        int lcCountDeleted;
+        lcCountDeleted = this.mProvider
                 .delete(asSyncAdapter(Events.CONTENT_URI, this.mAccount.name, this.mAccount.type),
                         mSelectionClause, mSelectionArgs);
-        //Log.d(TAG, "Rows deleted: " + CountDeleted.toString());
-        return CountDeleted;
+
+        return lcCountDeleted;
     }
 
     private Uri SyncAdapterCalendar() {
@@ -633,11 +612,11 @@ public class DavCalendar {
      * @return the value for the item
      */
     private String getContentValueAsString(String Item) {
-        String Result = "";
+        String lcResult = "";
         if (this.ContentValues.containsKey(Item)) {
-            Result = this.ContentValues.getAsString(Item);
+            lcResult = this.ContentValues.getAsString(Item);
         }
-        return Result;
+        return lcResult;
     }
 
     /**
@@ -647,11 +626,11 @@ public class DavCalendar {
      * @return the value for the item
      */
     private int getContentValueAsInt(String Item) {
-        int Result = 0;
+        int lcResult = 0;
         if (this.ContentValues.containsKey(Item)) {
-            Result = this.ContentValues.getAsInteger(Item);
+            lcResult = this.ContentValues.getAsInteger(Item);
         }
-        return Result;
+        return lcResult;
     }
 
     /**
@@ -662,14 +641,14 @@ public class DavCalendar {
      * @return success of this function
      */
     private boolean setContentValueAsString(String Item, String Value) {
-        boolean Result = false;
+        boolean lcResult = false;
 
         if (this.ContentValues.containsKey(Item)) {
             this.ContentValues.remove(Item);
         }
         this.ContentValues.put(Item, Value);
 
-        return Result;
+        return lcResult;
     }
 
     /**
@@ -680,14 +659,14 @@ public class DavCalendar {
      * @return success of this function
      */
     private boolean setContentValueAsInt(String Item, int Value) {
-        boolean Result = false;
+        boolean lcResult = false;
 
         if (this.ContentValues.containsKey(Item)) {
             this.ContentValues.remove(Item);
         }
         this.ContentValues.put(Item, Value);
 
-        return Result;
+        return lcResult;
     }
 
     public ArrayList<Uri> getNotifyList() {
@@ -699,29 +678,29 @@ public class DavCalendar {
     }
 
     public boolean readCalendarEvents(CaldavFacade facade) {
-        boolean Result = false;
+        boolean lcResult = false;
 
         try {
             this.mCalendarEvents = facade.getCalendarEvents(this);
-            Result = true;
+            lcResult = true;
         } catch (ClientProtocolException e) {
-            e.printStackTrace();
-            Result = false;
+            Log.e(getcTag(),e.getMessage());
+            lcResult = false;
         } catch (URISyntaxException e) {
-            e.printStackTrace();
-            Result = false;
+            Log.e(getcTag(),e.getMessage());
+            lcResult = false;
         } catch (IOException e) {
-            e.printStackTrace();
-            Result = false;
+            Log.e(getcTag(),e.getMessage());
+            lcResult = false;
         } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-            Result = false;
+            Log.e(getcTag(),e.getMessage());
+            lcResult = false;
         } catch (SAXException e) {
-            e.printStackTrace();
-            Result = false;
+            Log.e(getcTag(),e.getMessage());
+            lcResult = false;
         }
 
-        return Result;
+        return lcResult;
     }
 
     public enum CalendarSource {

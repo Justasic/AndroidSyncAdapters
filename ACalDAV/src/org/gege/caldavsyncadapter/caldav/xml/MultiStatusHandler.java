@@ -50,7 +50,7 @@ public class MultiStatusHandler extends DefaultHandler {
         mCurrentValue = "";
         if (localName.equals(RESPONSE)) {
             mResponse = new Response();
-            mMultiStatus.ResponseList.add(mResponse);
+            mMultiStatus.responseList.add(mResponse);
         } else if (localName.equals(PROPSTAT)) {
             mPropStat = new PropStat();
             mResponse.propstat = mPropStat;

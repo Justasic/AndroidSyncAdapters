@@ -4,5 +4,5 @@ import java.util.ArrayList;
 
 public class MultiStatus {
 
-    public ArrayList<Response> ResponseList = new ArrayList<Response>();
+    public ArrayList<Response> responseList = new ArrayList<Response>();
 }

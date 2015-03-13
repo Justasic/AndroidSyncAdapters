@@ -24,6 +24,8 @@ import android.content.ContentValues;
 import android.provider.CalendarContract.Events;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 /**
  * abstract class for Calendar and Android events
  */
@@ -69,29 +71,28 @@ abstract public class Event {
      * @return a list of all items that are comparable with this sync adapter
      */
     public static java.util.ArrayList<String> getComparableItems() {
-        java.util.ArrayList<String> Result = new java.util.ArrayList<String>();
-        Result.add(Events.DTSTART);
-        Result.add(Events.DTEND);
-        Result.add(Events.EVENT_TIMEZONE);
-        Result.add(Events.EVENT_END_TIMEZONE);
-        Result.add(Events.ALL_DAY);
-        Result.add(Events.DURATION);
-        Result.add(Events.TITLE);
-        Result.add(Events.CALENDAR_ID);
-        Result.add(Events._SYNC_ID);
-        //Result.add(Events.SYNC_DATA1);
-        Result.add(ETAG);
-        Result.add(Events.DESCRIPTION);
-        Result.add(Events.EVENT_LOCATION);
-        Result.add(Events.ACCESS_LEVEL);
-        Result.add(Events.STATUS);
-        Result.add(Events.RDATE);
-        Result.add(Events.RRULE);
-        Result.add(Events.EXRULE);
-        Result.add(Events.EXDATE);
-        Result.add(UID);
+        ArrayList<String> lcResult = new ArrayList<String>();
+        lcResult.add(Events.DTSTART);
+        lcResult.add(Events.DTEND);
+        lcResult.add(Events.EVENT_TIMEZONE);
+        lcResult.add(Events.EVENT_END_TIMEZONE);
+        lcResult.add(Events.ALL_DAY);
+        lcResult.add(Events.DURATION);
+        lcResult.add(Events.TITLE);
+        lcResult.add(Events.CALENDAR_ID);
+        lcResult.add(Events._SYNC_ID);
+        lcResult.add(ETAG);
+        lcResult.add(Events.DESCRIPTION);
+        lcResult.add(Events.EVENT_LOCATION);
+        lcResult.add(Events.ACCESS_LEVEL);
+        lcResult.add(Events.STATUS);
+        lcResult.add(Events.RDATE);
+        lcResult.add(Events.RRULE);
+        lcResult.add(Events.EXRULE);
+        lcResult.add(Events.EXDATE);
+        lcResult.add(UID);
 
-        return Result;
+        return lcResult;
     }
 
     abstract public String getETag();
@@ -104,11 +105,11 @@ abstract public class Event {
      * @return the AndroidCalendarId for this event
      */
     public long getAndroidCalendarId() {
-        long Result = -1;
+        long lcResult = -1;
         if (this.ContentValues.containsKey(Events.CALENDAR_ID)) {
-            Result = this.ContentValues.getAsLong(Events.CALENDAR_ID);
+            lcResult = this.ContentValues.getAsLong(Events.CALENDAR_ID);
         }
-        return Result;
+        return lcResult;
     }
 
     /**
@@ -132,12 +133,12 @@ abstract public class Event {
      * @return the UID for this event
      */
     public String getUID() {
-        String Result = "";
+        String lcResult = "";
         if (this.ContentValues.containsKey(UID)) {
-            Result = this.ContentValues.getAsString(UID);
+            lcResult = this.ContentValues.getAsString(UID);
         }
 
-        return Result;
+        return lcResult;
     }
 
     /**
@@ -147,54 +148,54 @@ abstract public class Event {
      * @return if the events are different
      */
     public boolean checkEventValuesChanged(ContentValues calendarEventValues) {
-        boolean Result = false;
-        Object ValueAndroid = null;
-        Object ValueCalendar = null;
-        java.util.ArrayList<String> CompareItems = Event.getComparableItems();
+        boolean lcResult = false;
+        Object lcValueAndroid = null;
+        Object lcValueCalendar = null;
+        java.util.ArrayList<String> lcCompareItems = Event.getComparableItems();
 
-        for (String Key : CompareItems) {
+        for (String key : lcCompareItems) {
 
-            if (this.ContentValues.containsKey(Key)) {
-                ValueAndroid = this.ContentValues.get(Key);
+            if (this.ContentValues.containsKey(key)) {
+                lcValueAndroid = this.ContentValues.get(key);
             } else {
-                ValueAndroid = null;
+                lcValueAndroid = null;
             }
 
-            if (calendarEventValues.containsKey(Key)) {
-                ValueCalendar = calendarEventValues.get(Key);
+            if (calendarEventValues.containsKey(key)) {
+                lcValueCalendar = calendarEventValues.get(key);
             } else {
-                ValueCalendar = null;
+                lcValueCalendar = null;
             }
 
 			/*
                          * TODO: Sync is designed to "Server always wins", should be a general option for this adapter
 			 */
-            if (ValueAndroid != null) {
-                if (ValueCalendar != null) {
-                    if (!ValueAndroid.toString().equals(ValueCalendar.toString())) {
-                        Log.d(TAG, "difference in " + Key.toString() + ":" + ValueAndroid.toString()
-                                + " <> " + ValueCalendar.toString());
-                        this.ContentValues.put(Key, ValueCalendar.toString());
-                        Result = true;
+            if (lcValueAndroid != null) {
+                if (lcValueCalendar != null) {
+                    if (!lcValueAndroid.toString().equals(lcValueCalendar.toString())) {
+                        Log.d(TAG, "difference in " + key.toString() + ":" + lcValueAndroid.toString()
+                                + " <> " + lcValueCalendar.toString());
+                        this.ContentValues.put(key, lcValueCalendar.toString());
+                        lcResult = true;
                     }
                 } else {
-                    Log.d(TAG, "difference in " + Key.toString() + ":" + ValueAndroid.toString()
+                    Log.d(TAG, "difference in " + key.toString() + ":" + lcValueAndroid.toString()
                             + " <> null");
-                    this.ContentValues.putNull(Key);
-                    Result = true;
+                    this.ContentValues.putNull(key);
+                    lcResult = true;
                 }
             } else {
-                if (ValueCalendar != null) {
-                    Log.d(TAG, "difference in " + Key.toString() + ":null <> " + ValueCalendar
+                if (lcValueCalendar != null) {
+                    Log.d(TAG, "difference in " + key.toString() + ":null <> " + lcValueCalendar
                             .toString());
-                    this.ContentValues.put(Key, ValueCalendar.toString());
-                    Result = true;
+                    this.ContentValues.put(key, lcValueCalendar.toString());
+                    lcResult = true;
                 } else {
                     // both null -> this is ok
                 }
             }
         }
 
-        return Result;
+        return lcResult;
     }
 }

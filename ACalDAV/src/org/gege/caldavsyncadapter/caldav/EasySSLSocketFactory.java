@@ -84,11 +84,9 @@ public final class EasySSLSocketFactory implements
             this.sslcontext.init(null, tm, new SecureRandom());
             this.socketfactory = this.sslcontext.getSocketFactory();
         } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG,
-                    "Faild to instantiate TrustAllSSLSocketFactory!", e);
+            Log.e(this.getClass().getName(), e.getMessage());
         } catch (KeyManagementException e) {
-            Log.e(TAG,
-                    "Failed to instantiate TrustAllSSLSocketFactory!", e);
+            Log.e(this.getClass().getName(), e.getMessage());
         }
     }
 
@@ -100,7 +98,8 @@ public final class EasySSLSocketFactory implements
     @Override
     public Socket createSocket(Socket socket, String host, int port,
                                boolean autoClose) throws IOException, UnknownHostException {
-        SSLSocket sslSocket = (SSLSocket) this.socketfactory.createSocket(
+        SSLSocket sslSocket;
+        sslSocket = (SSLSocket) this.socketfactory.createSocket(
                 socket, host, port, autoClose);
         return sslSocket;
     }
