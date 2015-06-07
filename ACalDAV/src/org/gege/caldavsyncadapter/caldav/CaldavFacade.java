@@ -325,10 +325,10 @@ public class CaldavFacade {
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
 
         SchemeRegistry registry = new SchemeRegistry();
+		registry.register(new Scheme("http", new PlainSocketFactory(), 80));
         registry.register(new Scheme("https",
                 (mTrustAll ? EasySSLSocketFactory.getSocketFactory() : new PlainSocketFactory()), 443
         ));
-		registry.register(new Scheme("https", new TlsSniSocketFactory(), 443));
         return new DefaultHttpClient(
                 new ThreadSafeClientConnManager(params, registry), params);
     }
