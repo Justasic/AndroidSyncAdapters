@@ -21,6 +21,8 @@
 
 package org.gege.caldavsyncadapter.caldav;
 
+import android.net.SSLCertificateSocketFactory;
+import android.os.Build;
 import android.util.Log;
 
 import org.apache.http.conn.ConnectTimeoutException;
@@ -98,10 +100,28 @@ public final class EasySSLSocketFactory implements
     @Override
     public Socket createSocket(Socket socket, String host, int port,
                                boolean autoClose) throws IOException, UnknownHostException {
-        SSLSocket sslSocket;
-        sslSocket = (SSLSocket) this.socketfactory.createSocket(
-                socket, host, port, autoClose);
-        return sslSocket;
+
+		SSLCertificateSocketFactory sslSocketFactory = (SSLCertificateSocketFactory) SSLCertificateSocketFactory.getDefault(0);
+		SSLSocket ssl = (SSLSocket)sslSocketFactory.createSocket(InetAddress.getByName(host), port);
+
+		// enable TLSv1.1/1.2 if available
+		// (see https://github.com/rfc2822/davdroid/issues/229)
+		ssl.setEnabledProtocols(ssl.getSupportedProtocols());
+
+		// set up SNI before the handshake
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+			Log.i("SNISocketFactory", "Setting SNI hostname");
+			sslSocketFactory.setHostname(ssl, host);
+		} else {
+			Log.d("SNISocketFactory", "No documented SNI support on Android <4.2, trying with reflection");
+			try {
+				java.lang.reflect.Method setHostnameMethod = ssl.getClass().getMethod("setHostname", String.class);
+				setHostnameMethod.invoke(ssl, host);
+			} catch (Exception e) {
+				Log.w("SNISocketFactory", "SNI not useable", e);
+			}
+		}
+		return ssl;
     }
 
     @Override
