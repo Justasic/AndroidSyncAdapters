@@ -9,3 +9,6 @@ aCalDAV/gradle.properties
 wait_for_emulator
 resources
 .gradle/
+gradle/
+gradlew
+gradlew.bat
