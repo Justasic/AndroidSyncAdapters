@@ -3,6 +3,9 @@ CalDAV Sync Adapter for Android
 forked from [wildgarden/AndroidCaldavSyncAdapater](https://github.com/wildgarden/AndroidCaldavSyncAdapater)
 See wiki for more information and server compatibility list (https://github.com/gggard/AndroidCaldavSyncAdapater/wiki)
 
+# APK file
+https://f-droid.org/app/de.we.acaldav
+
 # Contents
 Synchronize your Android phone with a CalDAV server like [Baïkal](http://baikal-server.com/)
 
