@@ -77,7 +77,10 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -557,7 +560,19 @@ public class CalendarEvent extends org.gege.caldavsyncadapter.Event {
             Property property;
             for (Object objProperty : lcCalendarComponentPropertys) {
                 property = (Property) objProperty;
-                lcResult.add(property.getValue());
+                String propertyValue = property.getValue();
+                if(property.getParameter("TZID") != null && !"UTC".equals(property.getParameter("TZID").getValue())) {
+                    try {
+                        SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.getDefault());
+                        df.setTimeZone(TimeZone.getTimeZone(property.getParameter("TZID").getValue()));
+                        Date date = df.parse(propertyValue);
+                        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+                        propertyValue = df.format(date) + "Z";
+                    } catch(ParseException e) {
+                        Log.w("EXDATE", "Error during EXDATE parsing: " + e.getMessage());
+                    }
+                }
+                lcResult.add(propertyValue);
             }
         }
 
