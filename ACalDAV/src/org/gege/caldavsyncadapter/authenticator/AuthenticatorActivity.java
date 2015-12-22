@@ -453,44 +453,29 @@ public class AuthenticatorActivity extends Activity {
                 case SSL_ERROR:
                     return LoginResult.UNTRUSTED_CERT;
                 case SUCCESS:
-                    boolean OldAccount = false;
                     LoginResult Result = LoginResult.Success_Calendar;
 
-                    if (OldAccount) {
-                        final Account account = new Account(mUser, ACCOUNT_TYPE);
-                        if (mAccountManager.addAccountExplicitly(account, mPassword, null)) {
-                            Log.v(TAG, "new account created");
-                            final int updateFrequency = Integer.parseInt(mUpdateInterval) * 60;
-                            mAccountManager.setUserData(account, USER_DATA_URL_KEY, mURL);
-                            ContentResolver.setSyncAutomatically(account, "com.android.calendar", true);
-                            ContentResolver.addPeriodicSync(account, "com.android.calendar", new Bundle(), updateFrequency);
-                        } else {
-                            Log.v(TAG, "no new account created");
-                            Result = LoginResult.Account_Already_In_Use;
-                        }
+                    final Account account;
+                    if (mAccountname.equals("")) {
+                        account = new Account(mUser + ACCOUNT_NAME_SPLITTER + mURL,
+                                ACCOUNT_TYPE);
                     } else {
-                        final Account account;
-                        if (mAccountname.equals("")) {
-                            account = new Account(mUser + ACCOUNT_NAME_SPLITTER + mURL,
-                                    ACCOUNT_TYPE);
-                        } else {
-                            account = new Account(mAccountname, ACCOUNT_TYPE);
-                        }
-                        if (mAccountManager.addAccountExplicitly(account, mPassword, null)) {
-                            Log.v(TAG, "new account created");
-                            final int updateFrequency = Integer.parseInt(mUpdateInterval) * 60;
-                            mAccountManager.setUserData(account, USER_DATA_URL_KEY, mURL);
-                            mAccountManager.setUserData(account, USER_DATA_USERNAME, mUser);
-                            mAccountManager.setUserData(account, USER_DATA_VERSION,
-                                    CURRENT_USER_DATA_VERSION);
-                            mAccountManager.setUserData(account, Constants.USER_DATA_TRUST_ALL_KEY,
-                                    mTrustAll);
-                            ContentResolver.setSyncAutomatically(account, "com.android.calendar", true);
-                            ContentResolver.addPeriodicSync(account, "com.android.calendar", new Bundle(), updateFrequency);
-                        } else {
-                            Log.v(TAG, "no new account created");
-                            Result = LoginResult.Account_Already_In_Use;
-                        }
+                        account = new Account(mAccountname, ACCOUNT_TYPE);
+                    }
+                    if (mAccountManager.addAccountExplicitly(account, mPassword, null)) {
+                        Log.v(TAG, "new account created");
+                        final int updateFrequency = Integer.parseInt(mUpdateInterval) * 60;
+                        mAccountManager.setUserData(account, USER_DATA_URL_KEY, mURL);
+                        mAccountManager.setUserData(account, USER_DATA_USERNAME, mUser);
+                        mAccountManager.setUserData(account, USER_DATA_VERSION,
+                                CURRENT_USER_DATA_VERSION);
+                        mAccountManager.setUserData(account, Constants.USER_DATA_TRUST_ALL_KEY,
+                                mTrustAll);
+                        ContentResolver.setSyncAutomatically(account, "com.android.calendar", true);
+                        ContentResolver.addPeriodicSync(account, "com.android.calendar", new Bundle(), updateFrequency);
+                    } else {
+                        Log.v(TAG, "no new account created");
+                        Result = LoginResult.Account_Already_In_Use;
                     }
 
                     return Result;
