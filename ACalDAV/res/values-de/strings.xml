@@ -31,5 +31,5 @@
     <string name="trustall">Überprüfe SSL Zertifikat</string>
     <string name="error_ssl">SSL Fehler</string>
     <string name="error_untrusted_certificate">Nicht vertrauenswürdiges Zertifikat</string>
-    <string name="error_internal_error_calendar_creation"></string>
+
 </resources>
