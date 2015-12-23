@@ -66,6 +66,8 @@ import java.util.ArrayList;
 import javax.net.ssl.SSLException;
 import javax.xml.parsers.ParserConfigurationException;
 
+import de.we.acaldav.R;
+
 //import java.net.MalformedURLException;
 //import java.security.GeneralSecurityException;
 
@@ -185,12 +187,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     if (mCountProviderFailed >= mCountProviderFailedMax) {
                         // see issue #96
                         NotificationsHelper.signalSyncErrors(this.getContext(),
-                                "Caldav sync error (provider failed)",
-                                "are you using CyanogenMod in Incognito Mode?");
+                                getContext().getString(R.string.error_caldav_sync_provider_failed),
+                                getContext().getString(R.string.error_cyanogen_incognito));
                     } else {
                         NotificationsHelper.signalSyncErrors(this.getContext(),
-                                "Caldav sync error (provider failed)",
-                                "the provider failed to get an existing or create a new calendar");
+                                getContext().getString(R.string.error_caldav_sync_provider_failed),
+                                getContext().getString(R.string.error_internal_error_calendar_creation));
                     }
                     bolError = true;
                 }
@@ -234,24 +236,36 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             Log.e(TAG, "SSLException", e);
             syncResult.stats.numIoExceptions++;
             if (!e.getMessage().startsWith("Read") || !e.getMessage().startsWith("Write")) {
-                NotificationsHelper.signalSyncErrors(this.getContext(), "Caldav sync error (SSL)",
-                        e.getMessage());
+                NotificationsHelper.signalSyncErrors(
+                        this.getContext(),
+                        getContext().getString(R.string.error_caldav_sync_ssl),
+                        e.getMessage()
+                );
             }
         } catch (final IOException e) {
             Log.e(TAG, "IOException", e);
             syncResult.stats.numIoExceptions++;
-            NotificationsHelper
-                    .signalSyncErrors(this.getContext(), "Caldav sync error (IO)", e.getMessage());
+            NotificationsHelper.signalSyncErrors(
+                    this.getContext(),
+                    getContext().getString(R.string.error_caldav_sync_io),
+                    e.getMessage()
+            );
         } catch (final ParseException e) {
             syncResult.stats.numParseExceptions++;
             Log.e(TAG, "ParseException", e);
-            NotificationsHelper.signalSyncErrors(this.getContext(), "Caldav sync error (parsing)", e
-                    .getMessage());
+            NotificationsHelper.signalSyncErrors(
+                    this.getContext(),
+                    getContext().getString(R.string.error_caldav_sync_parse),
+                    e.getMessage()
+            );
         } catch (Exception e) {
             Log.e(TAG, "Updating calendar exception " + e.getClass().getName(), e);
             syncResult.stats.numParseExceptions++;
-            NotificationsHelper.signalSyncErrors(this.getContext(), "Caldav sync error (general)", e
-                    .getMessage());
+            NotificationsHelper.signalSyncErrors(
+                    this.getContext(),
+                    getContext().getString(R.string.error_caldav_sync_general),
+                    e.getMessage()
+            );
         }
     }
 
@@ -325,15 +339,19 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             } catch (ParserException ex) {
                 Log.e(TAG, "Parser exception", ex);
                 stats.numParseExceptions++;
-
-                NotificationsHelper.signalSyncErrors(getContext(), "Caldav sync error (parsing)", ex
-                        .getMessage());
+                NotificationsHelper.signalSyncErrors(
+                        this.getContext(),
+                        getContext().getString(R.string.error_caldav_sync_parse),
+                        ex.getMessage()
+                );
             } catch (CaldavProtocolException ex) {
                 Log.e(TAG, "Caldav exception", ex);
                 stats.numParseExceptions++;
-
-                NotificationsHelper.signalSyncErrors(getContext(), "Caldav sync error (caldav)",
-                        ex.getMessage());
+                NotificationsHelper.signalSyncErrors(
+                        this.getContext(),
+                        getContext().getString(R.string.error_caldav_sync_caldav),
+                        ex.getMessage()
+                );
             }
         }
 

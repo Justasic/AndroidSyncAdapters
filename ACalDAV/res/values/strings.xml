@@ -36,5 +36,14 @@
     <string name="success_collection">Connection success (multiple calendars)</string>
     <string name="trustall">Check SSL Certificate</string>
     <string name="error_untrusted_certificate">Untrusted certificate</string>
+    <string name="error_caldav_sync_provider_failed">Caldav sync error (provider failed)</string>
+    <string name="error_cyanogen_incognito">are you using CyanogenMod in Incognito Mode?</string>
+    <string name="error_internal_error_calendar_creation">the provider failed to get an existing or create a new calendar</string>
+    <string name="error_caldav_sync_ssl">Caldav sync error (SSL)</string>
+    <string name="error_caldav_sync_io">Caldav sync error (IO)</string>
+    <string name="error_caldav_sync_parse">Caldav sync error (parsing)</string>
+    <string name="error_caldav_sync_general">Caldav sync error (general)</string>
+    <string name="error_caldav_sync_caldav">Caldav sync error (CalDAV)</string>
+    <string name="error_caldav_sync">Caldav sync problem</string>
 
 </resources>
