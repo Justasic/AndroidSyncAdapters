@@ -29,4 +29,12 @@
     <string name="success_collection">Connessione effettuata (più di un calendario)</string>
     <string name="title_activity_authenticator">Accedi</string>
     <string name="trustall">Controlla il certificato SSL</string>
+    <string name="error_caldav_sync_caldav">Errore sincronizzazione (CalDaV)</string>
+    <string name="error_caldav_sync_general">Errore sincronizzazione (generale)</string>
+    <string name="error_caldav_sync_io">Errore sincronizzazione (IO)</string>
+    <string name="error_caldav_sync_parse">Errore sincronizzazione (parsing)</string>
+    <string name="error_caldav_sync_provider_failed">Errore sincronizzazione (provider)</string>
+    <string name="error_caldav_sync_ssl">Errore sincronizzazione (SSL)</string>
+    <string name="error_cyanogen_incognito">stai usando CyanogenMod in modalità Incognito?</string>
+    <string name="error_internal_error_calendar_creation">Il provider non è riuscito a prendere o creare un nuovo profilo</string>
 </resources>
