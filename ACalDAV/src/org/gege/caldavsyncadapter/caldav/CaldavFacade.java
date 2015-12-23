@@ -104,6 +104,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import de.we.acaldav.BuildConfig;
+import de.we.acaldav.R;
 
 public class CaldavFacade {
 
@@ -386,27 +387,39 @@ public class CaldavFacade {
             calendars = getCalendarsFromSet(uri);
         } catch (ClientProtocolException e) {
             if (context != null) {
-                NotificationsHelper
-                        .signalSyncErrors(context, "Caldav sync problem", e.getMessage());
+                NotificationsHelper.signalSyncErrors(
+                        context,
+                        context.getString(R.string.error_caldav_sync),
+                        e.getMessage()
+                );
             }
             exception = e;
         } catch (FileNotFoundException e) {
             if (context != null) {
-                NotificationsHelper
-                        .signalSyncErrors(context, "Caldav sync problem", e.getMessage());
+                NotificationsHelper.signalSyncErrors(
+                        context,
+                        context.getString(R.string.error_caldav_sync),
+                        e.getMessage()
+                );
             }
             throw e;
         } catch (IOException e) {
             if (context != null) {
-                NotificationsHelper
-                        .signalSyncErrors(context, "Caldav sync problem", e.getMessage());
+                NotificationsHelper.signalSyncErrors(
+                        context,
+                        context.getString(R.string.error_caldav_sync),
+                        e.getMessage()
+                );
             }
             exception = e;
         } catch (CaldavProtocolException e) {
 
             if (context != null) {
-                NotificationsHelper
-                        .signalSyncErrors(context, "Caldav sync problem", e.getMessage());
+                NotificationsHelper.signalSyncErrors(
+                        context,
+                        context.getString(R.string.error_caldav_sync),
+                        e.getMessage()
+                );
             }
             exception = e;
         }

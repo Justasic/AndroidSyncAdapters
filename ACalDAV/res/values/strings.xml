@@ -44,5 +44,6 @@
     <string name="error_caldav_sync_parse">Caldav sync error (parsing)</string>
     <string name="error_caldav_sync_general">Caldav sync error (general)</string>
     <string name="error_caldav_sync_caldav">Caldav sync error (CalDAV)</string>
+    <string name="error_caldav_sync">Caldav sync problem</string>
 
 </resources>
