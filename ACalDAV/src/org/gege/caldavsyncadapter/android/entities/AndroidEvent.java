@@ -153,6 +153,9 @@ public class AndroidEvent extends org.gege.caldavsyncadapter.Event {
     public boolean readContentValues(Cursor cur) {
         this.setETag(cur.getString(cur.getColumnIndex(ETAG)));
 
+        this.ContentValues.put(Events._ID, cur.getString(cur.getColumnIndex(Events._ID)));
+        this.ContentValues.put(Events.ORIGINAL_ID, cur.getString(cur.getColumnIndex(Events.ORIGINAL_ID)));
+        this.ContentValues.put(Events.ORIGINAL_SYNC_ID, cur.getString(cur.getColumnIndex(Events.ORIGINAL_SYNC_ID)));
         this.ContentValues.put(Events.EVENT_TIMEZONE,
                 cur.getString(cur.getColumnIndex(Events.EVENT_TIMEZONE)));
         this.ContentValues.put(Events.EVENT_END_TIMEZONE,
