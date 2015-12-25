@@ -101,7 +101,8 @@ public final class EasySSLSocketFactory implements
     public Socket createSocket(Socket socket, String host, int port,
                                boolean autoClose) throws IOException, UnknownHostException {
 
-		SSLCertificateSocketFactory sslSocketFactory = (SSLCertificateSocketFactory) SSLCertificateSocketFactory.getDefault(0);
+		SSLCertificateSocketFactory sslSocketFactory =
+                (SSLCertificateSocketFactory) SSLCertificateSocketFactory.getInsecure(0, null);
 		SSLSocket ssl = (SSLSocket)sslSocketFactory.createSocket(InetAddress.getByName(host), port);
 
 		// enable TLSv1.1/1.2 if available
