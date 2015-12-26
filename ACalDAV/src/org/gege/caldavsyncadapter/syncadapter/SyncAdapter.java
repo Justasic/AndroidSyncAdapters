@@ -61,7 +61,11 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.net.ssl.SSLException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -159,6 +163,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     mCountProviderFailed = 0;
                     DavCalendar androidCalendar = androidCalList
                             .getCalendarByAndroidUri(androidCalendarUri);
+
+                    this.repairRecurringEvents(provider, androidCalendarUri);
 
                     if ((androidCalendar.getcTag() == null) || (!androidCalendar.getcTag()
                             .equals(serverCalendar.getcTag()))) {
@@ -367,6 +373,111 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         stats.numSkippedEntries += rowSkip;
         stats.numEntries += rowInsert + rowUpdate + rowDelete;
 
+    }
+
+    /**
+     * Retrieve a single event in a calendar
+     * @param provider
+     * @param calendarUri
+     * @param syncId
+     * @return
+     * @throws RemoteException
+     */
+    private AndroidEvent getEvent(ContentProviderClient provider, Uri calendarUri, String syncId) throws RemoteException {
+        String selection = Events._SYNC_ID + " = ?";
+        String selectionArgs[] = new String[] { syncId };
+        Cursor curEvent = provider.query(Events.CONTENT_URI, null, selection, selectionArgs, null);
+
+        AndroidEvent androidEvent = null;
+        if(curEvent != null && curEvent.moveToNext()) {
+            Long lcEventID = curEvent.getLong(curEvent.getColumnIndex(Events._ID));
+            Uri returnedUri = ContentUris.withAppendedId(Events.CONTENT_URI, lcEventID);
+            androidEvent = new AndroidEvent(returnedUri, calendarUri);
+            androidEvent.readContentValues(curEvent);
+        }
+        return androidEvent;
+    }
+
+    /**
+     * "Repair" recurring events
+     * @param provider
+     * @param calendarUri
+     */
+    private void repairRecurringEvents(ContentProviderClient provider, Uri calendarUri) {
+        try {
+            Long lcCalendarID = ContentUris.parseId(calendarUri);
+            String selection = "(" + Events.DIRTY + " = ?) AND (" + Events.CALENDAR_ID + " = ?)";
+            String[] selectionArgs = new String[]{"1", lcCalendarID.toString()};
+            Cursor curEvent = provider.query(Events.CONTENT_URI, null, selection, selectionArgs, null);
+            if(curEvent == null) {
+                return;
+            }
+
+            while (curEvent.moveToNext()) {
+                try {
+                    Long lcEventID = curEvent.getLong(curEvent.getColumnIndex(Events._ID));
+                    Uri returnedUri = ContentUris.withAppendedId(Events.CONTENT_URI, lcEventID);
+
+                    AndroidEvent androidEvent = new AndroidEvent(returnedUri, calendarUri);
+                    androidEvent.readContentValues(curEvent);
+
+                    String SyncID = androidEvent.ContentValues.getAsString(Events._SYNC_ID);
+
+                    boolean Cancelled = curEvent.getInt(curEvent.getColumnIndex(Events.STATUS)) == Events.STATUS_CANCELED;
+
+                    String originalSyncId = androidEvent.ContentValues.getAsString(Events.ORIGINAL_SYNC_ID);
+                    String exdate = androidEvent.ContentValues.getAsString(Events.EXDATE);
+                    String rrule = androidEvent.ContentValues.getAsString(Events.RRULE);
+
+                    Log.w("EVENTS", "EvtId:" + lcEventID + " Cancelled:" + Cancelled + " OriginalSyncId:" + originalSyncId
+                            + " exdate:" + exdate + " - rrule:" + rrule);
+
+                    if (Cancelled && SyncID == null && originalSyncId != null && !"null".equals(originalSyncId)) {
+                        AndroidEvent parentEvent = getEvent(provider, calendarUri, originalSyncId);
+                        String parentRRULE = (parentEvent != null ? parentEvent.ContentValues.getAsString("rrule") : null);
+                        if (parentEvent != null && parentRRULE != null && !"null".equals(parentRRULE)) {
+                            // Android bug?
+                            // Android create a new event marked as CANCELLED instead of settings an EXDATE
+                            // on recurring events, so we need to delete this event and set an EXDATE manually
+
+                            ContentValues cv = new ContentValues();
+                            String parentExDate = parentEvent.ContentValues.getAsString("exdate");
+
+                            String eventTimezone = parentEvent.ContentValues.getAsString("eventTimezone");
+
+                            // We need UTC Date for EXDATE
+                            SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.getDefault());
+                            String localExDate = df.format(new Date(androidEvent.ContentValues.getAsLong("dtstart")));
+                            df.setTimeZone(TimeZone.getTimeZone(eventTimezone));
+                            Date newExDate = df.parse(localExDate);
+                            df.setTimeZone(TimeZone.getTimeZone("UTC"));
+                            String newExDateTx = df.format(newExDate) + "Z";
+
+                            if (parentExDate == null || !parentExDate.contains(newExDateTx)) {
+                                if (parentExDate == null || parentExDate.isEmpty() || "null".equals(parentExDate)) {
+                                    parentExDate = newExDateTx;
+                                } else {
+                                    parentExDate += "," + newExDateTx;
+                                }
+                                cv.put(Events.EXDATE, parentExDate);
+
+                                // Sync parentEvent
+                                provider.update(parentEvent.getUri(), cv, null, null);
+                                this.getContext().getContentResolver().notifyChange(parentEvent.getUri(), null);
+                            }
+
+                            // Remove deleted event
+                            provider.delete(androidEvent.getUri(), null, null);
+                            this.getContext().getContentResolver().notifyChange(androidEvent.getUri(), null);
+                        }
+                    }
+                } catch(java.text.ParseException e) {
+                    Log.e(TAG, e.getMessage());
+                }
+            }
+        } catch(RemoteException e) {
+            Log.e(TAG, e.getMessage());
+        }
     }
 
     /**
