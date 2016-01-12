@@ -29,6 +29,7 @@ android {
         applicationId "de.we.acaldav"
         minSdkVersion 14
         targetSdkVersion 20
+        multiDexEnabled true
 
         def manifestParser = new DefaultManifestParser()
         versionName = manifestParser.getVersionName(android.sourceSets.main.manifest.srcFile)
@@ -80,11 +81,11 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:22.0.0'
-    compile 'backport-util-concurrent:backport-util-concurrent:3.1'
-    compile 'commons-codec:commons-codec:1.10'
-    compile 'org.apache.commons:commons-lang3:3.3.2'
-    compile 'org.mnode.ical4j:ical4j:1.0.6'
+    compile  'com.android.support:support-v4:22.0.0'
+    compile  'backport-util-concurrent:backport-util-concurrent:3.1'
+    compile  'commons-codec:commons-codec:1.10'
+    compile  'org.apache.commons:commons-lang3:3.3.2'
+    compile  'org.mnode.ical4j:ical4j:1.0.6'
     repositories {
         mavenCentral()
     }

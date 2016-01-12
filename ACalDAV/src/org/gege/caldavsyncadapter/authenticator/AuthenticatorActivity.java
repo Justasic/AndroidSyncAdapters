@@ -1,39 +1,43 @@
 /**
  * Copyright (c) 2012-2013, Gerald Garcia
- *
+ * <p/>
  * This file is part of Andoid Caldav Sync Adapter Free.
- *
- * Andoid Caldav Sync Adapter Free is free software: you can redistribute 
- * it and/or modify it under the terms of the GNU General Public License 
- * as published by the Free Software Foundation, either version 3 of the 
+ * <p/>
+ * Andoid Caldav Sync Adapter Free is free software: you can redistribute
+ * it and/or modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation, either version 3 of the
  * License, or at your option any later version.
- *
- * Andoid Caldav Sync Adapter Free is distributed in the hope that 
- * it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+ * <p/>
+ * Andoid Caldav Sync Adapter Free is distributed in the hope that
+ * it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p/>
  * You should have received a copy of the GNU General Public License
- * along with Andoid Caldav Sync Adapter Free.  
+ * along with Andoid Caldav Sync Adapter Free.
  * If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
 package org.gege.caldavsyncadapter.authenticator;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -47,7 +51,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.http.conn.HttpHostConnectException;
+import org.apache.http.conn.ssl.AbstractVerifier;
 import org.gege.caldavsyncadapter.Constants;
 import org.gege.caldavsyncadapter.caldav.CaldavFacade;
 import org.gege.caldavsyncadapter.caldav.CaldavFacade.TestConnectionResult;
@@ -58,6 +64,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.Locale;
+import java.util.prefs.Preferences;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -77,11 +84,15 @@ public class AuthenticatorActivity extends Activity {
 
     public static final String USER_DATA_USERNAME = "USER_DATA_USERNAME";
 
+    public static final String USER_DATA_UPDATE_INTERVAL = "USER_DATA_UPDATE_INTERVAL";
+
     public static final String USER_DATA_VERSION = "USER_DATA_VERSION";
 
     public static final String CURRENT_USER_DATA_VERSION = "1";
 
     public static final String ACCOUNT_NAME_SPLITTER = "@";
+
+    private Account account;
 
     /**
      * The default email to populate the email field with.
@@ -90,7 +101,12 @@ public class AuthenticatorActivity extends Activity {
 
     private static final String TAG = "AuthenticatorActivity";
 
-    private static final String ACCOUNT_TYPE = "org.gege.caldavsyncadapter.account";
+    @Override
+    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
+        super.onCreate(savedInstanceState, persistentState);
+    }
+
+    public static final String ACCOUNT_TYPE = "org.gege.caldavsyncadapter.account";
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -144,10 +160,9 @@ public class AuthenticatorActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_authenticator);
 
         mAccountManager = AccountManager.get(this);
-
-        setContentView(R.layout.activity_authenticator);
 
         // Set up the login form.
         mUser = getIntent().getStringExtra(EXTRA_EMAIL);
@@ -157,7 +172,6 @@ public class AuthenticatorActivity extends Activity {
 
         mContext = getBaseContext();
         App.setContext(mContext);
-
         mPasswordText = (IconfiedEditText) findViewById(R.id.password);
         mPasswordText.addClearButton();
         mPasswordText
@@ -249,7 +263,23 @@ public class AuthenticatorActivity extends Activity {
 
         mTrustCheckBox = (CheckBox) findViewById(R.id.trustall);
 
+        Account lcAccount = (Account) getIntent().getExtras().get(Constants.INVALID_CREDENTIALS_CHECK);
 
+        if (lcAccount != null) {
+            account = lcAccount;
+            mAccountnameText.setEnabled(false);
+            mUserView.setText(mAccountManager.getUserData(lcAccount, AuthenticatorActivity.USER_DATA_USERNAME));
+            mPasswordText.setText(mAccountManager.getPassword(lcAccount));
+            mURLText.setText(mAccountManager.getUserData(lcAccount, AuthenticatorActivity.USER_DATA_URL_KEY));
+            mAccountnameText.setText(lcAccount.name);
+            mUpdateIntervalView.setText(mAccountManager.getUserData(lcAccount, AuthenticatorActivity.USER_DATA_UPDATE_INTERVAL));
+            String lcTrustAll = mAccountManager.getUserData(lcAccount, Constants.USER_DATA_TRUST_ALL_KEY);
+            if (lcTrustAll.equals("false")) {
+                mTrustCheckBox.setChecked(true);
+            }else{
+                mTrustCheckBox.setChecked(false);
+            }
+        }
     }
 
     @Override
@@ -288,15 +318,17 @@ public class AuthenticatorActivity extends Activity {
 
         boolean cancel = false;
         View focusView = null;
+        if (account == null) {
+            if (!mAccountname.equals("")) {
+                Account TestAccount = new Account(mAccountname, ACCOUNT_TYPE);
 
-        if (!mAccountname.equals("")) {
-            Account TestAccount = new Account(mAccountname, ACCOUNT_TYPE);
-            String TestUrl = mAccountManager
-                    .getUserData(TestAccount, AuthenticatorActivity.USER_DATA_URL_KEY);
-            if (TestUrl != null) {
-                mAccountnameText.setError(getString(R.string.error_account_already_in_use));
-                focusView = mAccountnameText;
-                cancel = true;
+                String TestUrl = mAccountManager
+                        .getUserData(TestAccount, AuthenticatorActivity.USER_DATA_URL_KEY);
+                if (TestUrl != null) {
+                    mAccountnameText.setError(getString(R.string.error_account_already_in_use));
+                    focusView = mAccountnameText;
+                    cancel = true;
+                }
             }
         }
 
@@ -336,6 +368,7 @@ public class AuthenticatorActivity extends Activity {
             mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
             showProgress(true);
             mAuthTask = new UserLoginTask();
+            mAuthTask.setActivity(this);
             mAuthTask.execute((Void) null);
         }
     }
@@ -402,6 +435,7 @@ public class AuthenticatorActivity extends Activity {
      * the user.
      */
     public class UserLoginTask extends AsyncTask<Void, Void, LoginResult> {
+        private Activity activity;
 
         @Override
         protected LoginResult doInBackground(Void... params) {
@@ -455,29 +489,44 @@ public class AuthenticatorActivity extends Activity {
                 case SUCCESS:
                     LoginResult Result = LoginResult.Success_Calendar;
 
-                    final Account account;
-                    if (mAccountname.equals("")) {
-                        account = new Account(mUser + ACCOUNT_NAME_SPLITTER + mURL,
-                                ACCOUNT_TYPE);
+                    Account lcAccount = account;
+                    if (lcAccount == null) {
+                        if (mAccountname.equals("")) {
+                            lcAccount = new Account(mUser + ACCOUNT_NAME_SPLITTER + mURL,
+                                    ACCOUNT_TYPE);
+                        } else {
+                            lcAccount = new Account(mAccountname, ACCOUNT_TYPE);
+                        }
+                        if (mAccountManager.addAccountExplicitly(lcAccount, mPassword, null)) {
+                            Log.v(TAG, "new account created");
+                            final int updateFrequency = Integer.parseInt(mUpdateInterval) * 60;
+                            mAccountManager.setUserData(account, USER_DATA_URL_KEY, mURL);
+                            mAccountManager.setUserData(account, USER_DATA_USERNAME, mUser);
+                            mAccountManager.setUserData(account, USER_DATA_VERSION,
+                                    CURRENT_USER_DATA_VERSION);
+                            mAccountManager.setUserData(account, Constants.USER_DATA_TRUST_ALL_KEY,
+                                    mTrustAll);
+                            ContentResolver.setSyncAutomatically(account, "com.android.calendar", true);
+                            ContentResolver.addPeriodicSync(account, "com.android.calendar", new Bundle(), updateFrequency);
+                        } else {
+                            Log.v(TAG, "no new account created");
+                            Result = LoginResult.Account_Already_In_Use;
+                        }
                     } else {
-                        account = new Account(mAccountname, ACCOUNT_TYPE);
-                    }
-                    if (mAccountManager.addAccountExplicitly(account, mPassword, null)) {
-                        Log.v(TAG, "new account created");
+                        Log.v(TAG, "update account");
                         final int updateFrequency = Integer.parseInt(mUpdateInterval) * 60;
-                        mAccountManager.setUserData(account, USER_DATA_URL_KEY, mURL);
-                        mAccountManager.setUserData(account, USER_DATA_USERNAME, mUser);
-                        mAccountManager.setUserData(account, USER_DATA_VERSION,
-                                CURRENT_USER_DATA_VERSION);
-                        mAccountManager.setUserData(account, Constants.USER_DATA_TRUST_ALL_KEY,
-                                mTrustAll);
-                        ContentResolver.setSyncAutomatically(account, "com.android.calendar", true);
-                        ContentResolver.addPeriodicSync(account, "com.android.calendar", new Bundle(), updateFrequency);
-                    } else {
-                        Log.v(TAG, "no new account created");
-                        Result = LoginResult.Account_Already_In_Use;
-                    }
 
+                        mAccountManager.setPassword(lcAccount, mPassword);
+                        mAccountManager.setUserData(lcAccount, USER_DATA_URL_KEY, mURL);
+                        mAccountManager.setUserData(lcAccount, USER_DATA_USERNAME, mUser);
+                        mAccountManager.setUserData(lcAccount, USER_DATA_VERSION,
+                                CURRENT_USER_DATA_VERSION);
+                        mAccountManager.setUserData(lcAccount, Constants.USER_DATA_TRUST_ALL_KEY,
+                                mTrustAll);
+                        mAccountManager.updateCredentials(account, ACCOUNT_TYPE, null, this.activity, null, null);
+                        ContentResolver.setSyncAutomatically(lcAccount, "com.android.calendar", true);
+                        ContentResolver.addPeriodicSync(lcAccount, "com.android.calendar", new Bundle(), updateFrequency);
+                    }
                     return Result;
 
                 case WRONG_CREDENTIAL:
@@ -595,6 +644,10 @@ public class AuthenticatorActivity extends Activity {
         protected void onCancelled() {
             mAuthTask = null;
             showProgress(false);
+        }
+
+        public void setActivity(Activity activity) {
+            this.activity = activity;
         }
     }
 }

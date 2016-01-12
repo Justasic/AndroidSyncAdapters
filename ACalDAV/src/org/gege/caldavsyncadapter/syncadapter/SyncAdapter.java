@@ -23,11 +23,15 @@ package org.gege.caldavsyncadapter.syncadapter;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncResult;
 import android.content.SyncStats;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -39,6 +43,7 @@ import android.provider.CalendarContract.Attendees;
 import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Reminders;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import net.fortuna.ical4j.data.ParserException;
@@ -251,11 +256,32 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } catch (final IOException e) {
             Log.e(TAG, "IOException", e);
             syncResult.stats.numIoExceptions++;
-            NotificationsHelper.signalSyncErrors(
-                    this.getContext(),
-                    getContext().getString(R.string.error_caldav_sync_io),
-                    e.getMessage()
-            );
+            Intent notificationIntent = new Intent(this.getContext(), AuthenticatorActivity.class);
+            notificationIntent.setAction(Intent.ACTION_MAIN);
+            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+            notificationIntent.putExtra(Constants.INVALID_CREDENTIALS_CHECK, account);
+
+            PendingIntent contentIntent = PendingIntent.getActivity(this.getContext(),
+                    0, notificationIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+
+            NotificationManager nm = (NotificationManager) this.getContext()
+                    .getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this.getContext());
+            builder.setContentIntent(contentIntent)
+                    .setSmallIcon(R.drawable.icon)
+                    .setWhen(System.currentTimeMillis())
+                    .setAutoCancel(true)
+                    .setContentTitle(getContext().getString(R.string.error_caldav_sync_io))
+                    .setContentText(e.getMessage()).addExtras(extras);
+            Notification n = builder.getNotification();
+
+            nm.notify(0, n);
+            this.getContext().getApplicationContext().stopService(notificationIntent);
         } catch (final ParseException e) {
             syncResult.stats.numParseExceptions++;
             Log.e(TAG, "ParseException", e);
