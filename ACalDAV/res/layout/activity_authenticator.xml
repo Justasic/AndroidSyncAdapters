@@ -34,20 +34,23 @@
     <ScrollView
         android:id="@+id/login_form"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             style="@style/LoginFormContainer"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
             android:orientation="vertical">
 
             <de.we.acaldav.widget.IconfiedEditText
                 android:id="@+id/user"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:hint="@string/prompt_user"
                 android:inputType="text"
                 android:maxLines="1"
-                android:singleLine="true">
+                android:singleLine="true"
+                android:layout_weight="1">
 
                 <requestFocus />
             </de.we.acaldav.widget.IconfiedEditText>
@@ -56,65 +59,72 @@
             <de.we.acaldav.widget.IconfiedEditText
                 android:id="@+id/password"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:hint="@string/prompt_password"
                 android:imeActionId="@+id/login"
                 android:imeActionLabel="@string/action_sign_in_short"
                 android:imeOptions="actionUnspecified"
                 android:inputType="textPassword"
                 android:maxLines="1"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:layout_weight="1" />
 
             <de.we.acaldav.widget.IconfiedEditText
                 android:id="@+id/url"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:ems="10"
                 android:hint="@string/prompt_url"
-                android:inputType="textUri" />
+                android:inputType="textUri"
+                android:layout_weight="1" />
 
             <CheckBox
                 android:id="@+id/trustall"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:checked="true"
                 android:text="@string/trustall"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:layout_weight="1" />
 
             <de.we.acaldav.widget.IconfiedEditText
                 android:id="@+id/accountname"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:drawableRight="@drawable/ic_gmail"
                 android:hint="@string/prompt_accountname"
                 android:inputType="text"
                 android:maxLines="1"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:layout_weight="1" />
 
             <de.we.acaldav.widget.IconfiedEditText
                 android:id="@+id/updateinterval"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:hint="@string/prompt_updateinterval"
                 android:inputType="number"
                 android:maxLines="1"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:layout_weight="1" />
 
             <Button
                 android:id="@+id/sign_in_button"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_gravity="right"
                 android:layout_marginTop="16dp"
                 android:paddingLeft="32dp"
                 android:paddingRight="32dp"
-                android:text="@string/action_sign_in_register" />
+                android:text="@string/action_sign_in_register"
+                android:layout_weight="1" />
 
             <TextView
                 android:id="@+id/sign_in_note_accountname"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/action_sign_in_note_accountname" />
+                android:layout_height="0dp"
+                android:text="@string/action_sign_in_note_accountname"
+                android:layout_weight="1" />
 
         </LinearLayout>
     </ScrollView>
