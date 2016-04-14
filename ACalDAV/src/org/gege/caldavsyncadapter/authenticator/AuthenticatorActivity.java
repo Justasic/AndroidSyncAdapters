@@ -500,14 +500,14 @@ public class AuthenticatorActivity extends Activity {
                         if (mAccountManager.addAccountExplicitly(lcAccount, mPassword, null)) {
                             Log.v(TAG, "new account created");
                             final int updateFrequency = Integer.parseInt(mUpdateInterval) * 60;
-                            mAccountManager.setUserData(account, USER_DATA_URL_KEY, mURL);
-                            mAccountManager.setUserData(account, USER_DATA_USERNAME, mUser);
-                            mAccountManager.setUserData(account, USER_DATA_VERSION,
+                            mAccountManager.setUserData(lcAccount, USER_DATA_URL_KEY, mURL);
+                            mAccountManager.setUserData(lcAccount, USER_DATA_USERNAME, mUser);
+                            mAccountManager.setUserData(lcAccount, USER_DATA_VERSION,
                                     CURRENT_USER_DATA_VERSION);
-                            mAccountManager.setUserData(account, Constants.USER_DATA_TRUST_ALL_KEY,
+                            mAccountManager.setUserData(lcAccount, Constants.USER_DATA_TRUST_ALL_KEY,
                                     mTrustAll);
-                            ContentResolver.setSyncAutomatically(account, "com.android.calendar", true);
-                            ContentResolver.addPeriodicSync(account, "com.android.calendar", new Bundle(), updateFrequency);
+                            ContentResolver.setSyncAutomatically(lcAccount, "com.android.calendar", true);
+                            ContentResolver.addPeriodicSync(lcAccount, "com.android.calendar", new Bundle(), updateFrequency);
                         } else {
                             Log.v(TAG, "no new account created");
                             Result = LoginResult.Account_Already_In_Use;
