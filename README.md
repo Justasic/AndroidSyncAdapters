@@ -7,6 +7,7 @@ See wiki for more information and server compatibility list (https://github.com/
 https://f-droid.org/app/de.we.acaldav
 
 # Donate
+## Bitcoin
 1Bp9m7MxLmjVgzkwWJkajQgyGXzPuYCRqX
 
 # Contents
