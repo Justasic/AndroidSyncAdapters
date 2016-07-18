@@ -10,7 +10,7 @@ https://f-droid.org/app/de.we.acaldav
 ## Bitcoin
 1Bp9m7MxLmjVgzkwWJkajQgyGXzPuYCRqX
 ## PayPal
-[backport-util-concurrent](https://www.paypal.me/WEnns)
+[PayPal](https://www.paypal.me/WEnns)
 
 # Contents
 Synchronize your Android phone with a CalDAV server like [Baïkal](http://baikal-server.com/) or owncloud. The sync address for owncloud you have to enter in the app is http://your_server_ name/owncloud/remote.php/caldav/calendars
