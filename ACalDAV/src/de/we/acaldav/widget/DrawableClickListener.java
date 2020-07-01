@@ -5,7 +5,7 @@ package de.we.acaldav.widget;
  */
 public interface DrawableClickListener {
 
-    public void onClick(DrawablePosition target);
+	public void onClick(DrawablePosition target);
 
-    public static enum DrawablePosition {TOP, BOTTOM, LEFT, RIGHT}
+	public static enum DrawablePosition { TOP, BOTTOM, LEFT, RIGHT }
 }

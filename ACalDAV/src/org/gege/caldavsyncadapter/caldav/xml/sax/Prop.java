@@ -1,8 +1,9 @@
 package org.gege.caldavsyncadapter.caldav.xml.sax;
 
-public class Prop {
+public class Prop
+{
 
-    public String calendardata = "";
+	public String calendardata = "";
 
-    public String getetag = "";
+	public String getetag = "";
 }

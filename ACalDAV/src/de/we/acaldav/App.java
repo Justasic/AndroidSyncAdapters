@@ -6,20 +6,24 @@ import android.content.Context;
 /**
  * @author Joseph Weigl
  */
-public class App extends Application {
+public class App extends Application
+{
 
-    private static Context mContext;
+	private static Context mContext;
 
-    public App() {
-        super();
-        App.mContext = this;
-    }
+	public App()
+	{
+		super();
+		App.mContext = this;
+	}
 
-    public static Context getContext() {
-        return mContext;
-    }
+	public static Context getContext()
+	{
+		return mContext;
+	}
 
-    public static void setContext(Context context) {
-        mContext = context;
-    }
+	public static void setContext(Context context)
+	{
+		mContext = context;
+	}
 }
